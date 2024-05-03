@@ -13,16 +13,27 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+
+
 func socketHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Inside socket Handler")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("A socket error occured")
+		log.Printf("A socket error occured : %s", err.Error())
 		return
 	}
-	fmt.Print(conn)
+	conn.WriteMessage(1, []byte("Hello, World"))
 }
 
+
+
 func main() {
-	log.Println("Hello World")
-	fmt.Println("Hello World")
+
+	fmt.Println("Hello WebSockets")
+	http.HandleFunc("/", socketHandler)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Println("Error occured while listening to port 3333")
+	}
+
 }
