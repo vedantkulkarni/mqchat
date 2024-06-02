@@ -3,10 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"github.com/vednatkulkarni/mqchat/internal/app/services/api"
 	"github.com/vedantkulkarni/mqchat/internal/common/database"
-	"github.com/vedantkulkarni/mqchat/internal/routes"
 )
 
 var (
@@ -20,25 +18,12 @@ const (
 )
 
 func main() {
-	server := gin.Default()
 
-	//Register the routes
-	routes.RegisterRoutes(server)
-
-	//Connect to database.
-	pgdb, err := database.NewPostgresDB()
+	//Create a new server
+	api:= api.NewAPI("localhost:8080")
+	err := api.Start()
 	if err != nil {
-		fmt.Println("Error occured")
-	}
-	fmt.Printf("%v\n", pgdb)
+		fmt.Println("Error occured while starting the server")
+	}	
 
-	//test endpoint
-	server.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-	server.Run()
-
-	fmt.Println("Server Started !")
 }

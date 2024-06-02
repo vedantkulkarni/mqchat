@@ -36,7 +36,13 @@ func NewPostgresDB() (*PostgresDB, error) {
 	}
 	defer dbpool.Close()
 
-	fmt.Println("Database Success !")
+	var user string
+	err = dbpool.QueryRow(context.Background(), "select last_name from users where first_name='Vedant'").Scan(&user)
+	if err != nil {
+		fmt.Println("Error while obtaining users")
+		fmt.Print(err)
+	}
+	fmt.Println(user)
 	return &PostgresDB{
 		db: dbpool,
 	}, nil

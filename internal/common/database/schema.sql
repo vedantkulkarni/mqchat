@@ -1,3 +1,4 @@
+
 drop table if exists sessions;
 drop table if exists users;
 drop table if exists messages;
@@ -17,7 +18,7 @@ create table sessions(
     session_id varchar not null unique,
     is_active boolean,
     last_active timestamp,
-
+    
     foreign key (user_id) references users (user_id)
 
 );
