@@ -2,50 +2,40 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/vedantkulkarni/mqchat/internal"
 )
 
-type User struct {
-}
 type Database interface {
-	//User querries
-	CreateUser(*User) error
-	DeleteUser(string) error
-	GetUser(string) (*User, error)
+	
 }
 
 type PostgresDB struct {
-	db *pgxpool.Pool
+	DB *sql.DB
 }
-
-func (p *PostgresDB) CreateUser(user *User) error {
-	return nil
-}
-
-func (p *PostgresDB) DeleteUser(id string) error {
-	return nil
-}
-
-func (p *PostgresDB) GetUser(id string) (*User, error) {
-	return nil, nil
-}
-
 func NewPostgresDB() (*PostgresDB, error) {
 
-	dbpool, err := pgxpool.New(context.Background(), internal.GoDotEnvVariable("DATABASE_URL"))
+	pool, err := pgxpool.New(context.Background(), internal.GoDotEnvVariable("DATABASE_URL"))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Unable to create connection : %v\n", err)
 		os.Exit(1)
 	}
-	defer dbpool.Close()
+	defer pool.Close()
 
-	dbpool.Ping(context.Background())
+	pool.Ping(context.Background())
+
+	sqlDB := stdlib.OpenDBFromPool(pool)
 
 	return &PostgresDB{
-		db: dbpool,
+		DB: sqlDB,
 	}, nil
+}
+
+func (p *PostgresDB) NewSqlBoilerDb( ) error {
+	return nil
 }

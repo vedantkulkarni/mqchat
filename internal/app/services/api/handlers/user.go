@@ -1,40 +1,68 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v3"
+	"github.com/vedantkulkarni/mqchat/internal/app/proto"
 )
 
-func RegisterUserRoutes(user fiber.Router) error {
-	user.Get("/", getUsers)
-	user.Post("/", createUser)
-	user.Get("/:uid", getUser)
-	user.Put("/:uid", updeUser)
-	user.Delete("/:uid", deleteUser)
+type UserHandler struct {
+	grpcClient proto.UserGRPCServiceClient	
+}
+
+func NewUserHandler(client proto.UserGRPCServiceClient) *UserHandler {
+	return &UserHandler{
+		grpcClient: client,
+	}
+}
+
+func (h *UserHandler) RegisterUserRoutes(user fiber.Router) error {
+	user.Get("/", h.getUsers)
+	user.Post("/", h.createUser)
+	user.Get("/:uid", h.getUser)
+	user.Put("/:uid", h.updeUser)
+	user.Delete("/:uid", h.deleteUser)
 
 	return nil
 }
 
-func getUsers(c fiber.Ctx) error {
-	return c.SendString("Get Users")
+func(h *UserHandler) getUsers(c fiber.Ctx) error {
+
+	createUserRequest := &proto.CreateUserRequest{
+		Username : "vedant",
+		Email : "vedantk60@gmail.com",
+	}
+
+ 	response, err := h.grpcClient.CreateUser(c.Context(), createUserRequest)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Response from the server : %v", response)
+	return c.JSON(response)
 
 }
 
-func createUser(c fiber.Ctx) error {
+func (h *UserHandler) createUser(c fiber.Ctx) error {
+
+
+
+
 	return c.SendString("Create User")
 
 }
 
-func getUser(c fiber.Ctx) error {
+func (h *UserHandler) getUser(c fiber.Ctx) error {
 	return c.SendString("Get User")
 
 }
 
-func updeUser(c fiber.Ctx) error {
+func (h *UserHandler) updeUser(c fiber.Ctx) error {
 	return c.SendString("Update User")
 
 }
 
-func deleteUser(c fiber.Ctx) error {
+func (h *UserHandler) deleteUser(c fiber.Ctx) error {
 	return c.SendString("Delete User")
 
 }
