@@ -12,7 +12,7 @@ type API struct {
 	// Add gRPC client here
 }
 
-func (a *API) NewAPI(connStr string) (*API, error) {
+func NewAPI(connStr string) (*API, error) {
 	return &API{
 		addr: connStr,
 	}, nil
@@ -35,7 +35,7 @@ func (a *API) Start() error {
 	handlers.RegisterAuthRoutes(auth)
 	handlers.RegisterChatRoutes(chat)
 	handlers.RegisterSessionRoutes(session)
-	
+
 
 	return nil
 }
