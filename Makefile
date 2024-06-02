@@ -1,3 +1,7 @@
-gen: ./internal/app/proto/services.proto
+gen: ./internal/app/proto/user.proto
 	export PATH="$PATH:$(go env GOPATH)/bin"
-	protoc --go_out=./internal/app/proto/gen/ --go-grpc_out=./internal/app/proto/gen/ ./internal/app/proto/services.proto
+	protoc --go_out=. \
+	--go_opt=paths=source_relative \
+	--go-grpc_out=.  \
+	--go-grpc_opt=paths=source_relative \
+	./internal/app/proto/user.proto
