@@ -16,15 +16,22 @@ type Database interface {
 	CreateUser(*User) error
 	DeleteUser(string) error
 	GetUser(string) (*User, error)
-
-	//Session querries
-
-	//Message querries
-
 }
 
 type PostgresDB struct {
 	db *pgxpool.Pool
+}
+
+func (p *PostgresDB) CreateUser(user *User) error {
+	return nil
+}
+
+func (p *PostgresDB) DeleteUser(id string) error {
+	return nil
+}
+
+func (p *PostgresDB) GetUser(id string) (*User, error) {
+	return nil, nil
 }
 
 func NewPostgresDB() (*PostgresDB, error) {
@@ -36,13 +43,8 @@ func NewPostgresDB() (*PostgresDB, error) {
 	}
 	defer dbpool.Close()
 
-	var user string
-	err = dbpool.QueryRow(context.Background(), "select last_name from users where first_name='Vedant'").Scan(&user)
-	if err != nil {
-		fmt.Println("Error while obtaining users")
-		fmt.Print(err)
-	}
-	fmt.Println(user)
+	dbpool.Ping(context.Background())
+
 	return &PostgresDB{
 		db: dbpool,
 	}, nil

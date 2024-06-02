@@ -9,12 +9,12 @@ import (
 
 func GoDotEnvVariable(key string) string {
 
-  // load .env file
-  err := godotenv.Load(".env")
+	// load .env file
+	err := godotenv.Load(".env")
 
-  if err != nil {
-    log.Fatalf("Error loading .env file")
-  }
+	if err != nil {
+		log.Fatalf("Error loading .env file : %v", err)
+	}
 
-  return os.Getenv(key)
+	return os.Getenv(key)
 }

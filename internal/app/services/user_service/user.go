@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net"
-
+	"github.com/vedantkulkarni/mqchat/internal/app/services/user_service/database"
 	"github.com/vedantkulkarni/mqchat/internal/app/proto"
-	"github.com/vedantkulkarni/mqchat/internal/common/database"
 	"google.golang.org/grpc"
 )
 

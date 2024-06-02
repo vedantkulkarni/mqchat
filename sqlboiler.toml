@@ -1,13 +1,14 @@
 wipe = true
-output = "models"
+output = "gen/models"
 no-tests = true
 add-enum-types = true
 
 
 [psql]
- dbname = "mqdb"
- user = "mqdbUser"
+ dbname = "postgres"
+ user = "postgres"
  host = "localhost"
- port = "5432"
+ port = 5432
+ pass = "iamVedant@23"
  sslmode = "disable"
  blacklist = ["migrations","other"]

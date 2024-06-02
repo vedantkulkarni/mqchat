@@ -5,7 +5,7 @@ import (
 	"net"
 	"github.com/vedantkulkarni/mqchat/internal/app/services/api"
 	usersservice "github.com/vedantkulkarni/mqchat/internal/app/services/user_service"
-	"github.com/vedantkulkarni/mqchat/internal/common/database"
+	"github.com/vedantkulkarni/mqchat/internal/app/services/user_service/database"
 )
 
 var (
@@ -29,7 +29,7 @@ func main() {
 
 	
 	//Initialize the REST API server
-	apiServer, err := api.NewAPI("localhost:8080") 
+	apiServer, err := api.NewAPI(":8080") 
 	if err != nil {
 		fmt.Println("Error occured while creating the server")
 	}
@@ -58,5 +58,4 @@ func main() {
 		fmt.Println("Error occured while starting the gRPC server")
 	}
 	
-
 }
