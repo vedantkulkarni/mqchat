@@ -29,7 +29,7 @@ func main() {
 
 	
 	//Initialize the REST API server
-	apiServer, err := api.NewAPI(":8080") 
+	apiServer, err := api.NewAPI("8080", "443") 
 	if err != nil {
 		fmt.Println("Error occured while creating the server")
 	}
@@ -37,13 +37,17 @@ func main() {
 	err = apiServer.Start()
 	if err != nil {
 		fmt.Println("Error occured while starting the server")
+		return
 	}	
+
+	fmt.Println("Server started successfully")
 
 
 	//Listen to gRPC and REST API requests
-	listner, err := net.Listen("tcp", ":8080")
+	listner, err := net.Listen("tcp", ":8085")
 	if err != nil {
 		fmt.Println("Error occured while listening to the port")	
+		return
 	}
 
 	//Initialize the gRPC servers
@@ -52,10 +56,13 @@ func main() {
 	userServer, err := usersservice.NewUserGRPCServer(db)
 	if err != nil {
 		fmt.Println("Error occured while creating the gRPC server")
+		return
 	}
 	err = userServer.StartService(listner)
 	if err != nil {
 		fmt.Println("Error occured while starting the gRPC server")
+		return
 	}
+	fmt.Println("gRPC server started successfully")
 	
 }

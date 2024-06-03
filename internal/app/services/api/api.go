@@ -12,27 +12,29 @@ import (
 
 type API struct {
 	addr string
-	grpcConn *grpc.ClientConn
+	grpcAddr string 
 }
 
-func NewAPI(connStr string) (*API, error) {
-	//Connect to the gRPC server
-	var opts []grpc.DialOption
-	conn, err := grpc.NewClient(connStr, opts...)
-	if err != nil {
-		fmt.Println("Error occured while connecting to the gRPC server")
-		return nil, err
-	}
-	defer conn.Close()	
-
+func NewAPI(addr string, grpcAddr string) (*API, error) {
+	
 
 	return &API{
-		addr: connStr,
-		grpcConn: conn,
+		addr: addr,
+		grpcAddr: grpcAddr,
 	}, nil
 }
 
 func (a *API) Start() error {
+
+	//Connect to the gRPC server
+	// conn, err :
+	conn, err := grpc.NewClient(fmt.Sprintf("localhost:%s",a.grpcAddr),grpc.WithInsecure())
+	if err != nil {
+		fmt.Println("Error occured while connecting to the gRPC server")
+		return  err
+	}
+
+	fmt.Println("grpc dial successful")
 	app := fiber.New()
 	api := app.Group("/api")
 
@@ -47,19 +49,22 @@ func (a *API) Start() error {
 	// Register the routes
 
 	// User Routes
-	client := proto.NewUserGRPCServiceClient(a.grpcConn)
+	client := proto.NewUserGRPCServiceClient(conn)
 	userHandler := handlers.NewUserHandler(client)
-	err := userHandler.RegisterUserRoutes(userRoutes)
+	err = userHandler.RegisterUserRoutes(userRoutes)
 	if err != nil {
 		fmt.Println("Error occured while registering the user routes")
 		return err
 	}
+	fmt.Println("User routes registered successfully")
 	
 	
 	
 	handlers.RegisterAuthRoutes(auth)
 	handlers.RegisterChatRoutes(chat)
 	handlers.RegisterSessionRoutes(session)
+
+	app.Listen(a.addr)	
 
 
 	return nil
