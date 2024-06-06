@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"context"
+	// "context"
 	"fmt"
 
 	"github.com/gofiber/fiber/v3"
@@ -28,6 +28,8 @@ func (h *UserHandler) RegisterUserRoutes(user fiber.Router) error {
 	return nil
 }
 
+
+
 func(h *UserHandler) getUsers(c fiber.Ctx) error {
 
 	return c.SendString("Get Users")
@@ -36,19 +38,20 @@ func(h *UserHandler) getUsers(c fiber.Ctx) error {
 
 func (h *UserHandler) createUser(c fiber.Ctx) error {
 
-	fmt.Println("Handled by create user")
+	fmt.Println("Create User")
+	fmt.Println(c.Request())
+	// createUserRequest := proto.CreateUserRequest{
+	// 	Username : c.Body()["username"],
+	// 	Email : "vedantk60@gmail.com",
+	// }
 
-	createUserRequest := proto.CreateUserRequest{
-		Username : "vedant",
-		Email : "vedantk60@gmail.com",
-	}
+ 	// response, err := h.grpcClient.CreateUser(context.Background(), &createUserRequest)
+	// if err != nil {
+	// 	fmt.Printf("Error occured while creating the user, Error : %v", err)
+	// 	return err
+	// }
+	// fmt.Printf("Response from the server : %v", response)
 
- 	response, err := h.grpcClient.CreateUser(context.Background(), &createUserRequest)
-	if err != nil {
-		fmt.Println("Error occured while creating the user, Error : %v", err)
-		return err
-	}
-	fmt.Printf("Response from the server : %v", response)
 	return nil 
 
 }

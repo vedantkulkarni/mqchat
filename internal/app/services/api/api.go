@@ -28,7 +28,10 @@ func (a *API) Start() error {
 
 	//Connect to the gRPC server
 	// conn, err :
-	conn, err := grpc.NewClient(fmt.Sprintf("localhost:%s",a.grpcAddr),grpc.WithInsecure())
+	opts := []grpc.DialOption{
+		grpc.WithInsecure(),
+	}
+	conn, err := grpc.NewClient(fmt.Sprintf("127.0.0.1%s",a.grpcAddr), opts...)
 	if err != nil {
 		fmt.Println("Error occured while connecting to the gRPC server")
 		return  err
@@ -58,12 +61,9 @@ func (a *API) Start() error {
 	}
 	fmt.Println("User routes registered successfully")
 	
-	
-	
 	handlers.RegisterAuthRoutes(auth)
 	handlers.RegisterChatRoutes(chat)
 	handlers.RegisterSessionRoutes(session)
-
 	app.Listen(a.addr)	
 
 

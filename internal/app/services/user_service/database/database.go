@@ -25,7 +25,7 @@ func NewPostgresDB() (*PostgresDB, error) {
 		fmt.Fprintf(os.Stderr, "Unable to create connection : %v\n", err)
 		os.Exit(1)
 	}
-	defer pool.Close()
+	// defer pool.Close()
 
 	pool.Ping(context.Background())
 

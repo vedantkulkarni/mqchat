@@ -69,16 +69,16 @@ func  NewUserGRPCServer(db *database.PostgresDB) (*UserGRPCServer, error) {
 func (u *UserGRPCServer) StartService(listner net.Listener) error {
 
 	g:= grpc.NewServer()
+	fmt.Println("Starting gRPC user server")
 
-	boil.SetDB(u.DB)
-	
-	
 	proto.RegisterUserGRPCServiceServer(g, u)
+
+	fmt.Println("gRPC user server registered successfully")
 	if err := g.Serve(listner); err != nil {
 		fmt.Println("Error occured while serving the gRPC server")
 		return err
 	}
-	fmt.Println("gRPC server started successfully")
+	fmt.Println("gRPC user server started successfully!")
 	return nil
 
 }
