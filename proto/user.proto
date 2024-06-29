@@ -3,7 +3,7 @@ syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/vedantkulkarni/mqchat/internal/app/proto";
+option go_package = "github.com/vedantkulkarni/mqchat/proto";
 
 
 
@@ -47,9 +47,17 @@ message GetUserResponse{
     User user = 1;
 }
 
+message GetUsersRequest{
+    string id = 1;
+}
+message GetUsersResponse{
+    repeated User users = 1;
+}
+
 service UserGRPCService{
     rpc CreateUser(CreateUserRequest) returns (CreateUserResponse){}
     rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse){}
     rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){}
     rpc GetUser(GetUserRequest) returns (GetUserResponse){}
+    rpc GetUsers(GetUsersRequest) returns (GetUsersResponse){}
 };

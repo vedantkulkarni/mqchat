@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/vedantkulkarni/mqchat/internal/app/proto";
+
+
+message Message {
+    string id = 1;
+    string content = 2;
+    google.protobuf.Timestamp created_at = 3;
+    string from_user_id = 4;
+    string to_user_id = 5;
+}
+
+message SendMessageRequest {
+    Message message = 1;
+}
+
+message SendMessageResponse {
+    Message message = 1;
+    bool success = 2;
+}
+
+message GetMessagesRequest {
+    string of_user_id = 1;
+    string user_id = 2;
+}
+
+message GetMessagesResponse {
+    repeated Message messages = 1;
+}
+
+
+service ChatService {
+    rpc SendMessage(Message) returns (Message) {}
+    rpc GetMessages(GetMessagesRequest) returns (stream Message) {}
+}

@@ -1,10 +1,24 @@
-gen: ./internal/app/proto/user.proto
-	export PATH="$PATH:$(go env GOPATH)/bin"
-	protoc --go_out=. \
-	--go_opt=paths=source_relative \
-	--go-grpc_out=.  \
-	--go-grpc_opt=paths=source_relative \
-	./internal/app/proto/user.proto
+gen : genUser genChat genConnection
 
+genUser: ./proto/user.proto
+	protoc --go_out=./internal/app/protogen/ \
+	--go_opt=paths=source_relative \
+	--go-grpc_out=./internal/app/protogen/  \
+	--go-grpc_opt=paths=source_relative \
+	./proto/user.proto
+
+genChat: ./proto/chat.proto
+	protoc --go_out=./internal/app/protogen/ \
+	--go_opt=paths=source_relative \
+	--go-grpc_out=./internal/app/protogen/  \
+	--go-grpc_opt=paths=source_relative \
+	./proto/chat.proto
+
+genConnection: ./proto/connection.proto
+	protoc --go_out=./internal/app/protogen/ \
+	--go_opt=paths=source_relative \
+	--go-grpc_out=./internal/app/protogen/  \
+	--go-grpc_opt=paths=source_relative \
+	./proto/connection.proto
 run:
 	go run ./cmd/server/main.go

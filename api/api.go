@@ -2,24 +2,24 @@ package api
 
 import (
 	"fmt"
+	"log"
 
-	"github.com/vedantkulkarni/mqchat/internal/app/proto"
-	"github.com/vedantkulkarni/mqchat/internal/app/services/api/handlers"
+	"github.com/vedantkulkarni/mqchat/api/handlers"
+	"github.com/vedantkulkarni/mqchat/internal/app/protogen/proto"
 	"google.golang.org/grpc"
 
 	"github.com/gofiber/fiber/v3"
 )
 
 type API struct {
-	addr string
-	grpcAddr string 
+	addr     string
+	grpcAddr string
 }
 
 func NewAPI(addr string, grpcAddr string) (*API, error) {
-	
 
 	return &API{
-		addr: addr,
+		addr:     addr,
 		grpcAddr: grpcAddr,
 	}, nil
 }
@@ -31,13 +31,13 @@ func (a *API) Start() error {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
-	conn, err := grpc.NewClient(fmt.Sprintf("127.0.0.1%s",a.grpcAddr), opts...)
+	conn, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.grpcAddr), opts...)
 	if err != nil {
-		fmt.Println("Error occured while connecting to the gRPC server")
-		return  err
+		log.Println("Error occurred while connecting to the gRPC server")
+		return err
 	}
+	log.Println("grpc dial successful")
 
-	fmt.Println("grpc dial successful")
 	app := fiber.New()
 	api := app.Group("/api")
 
@@ -45,7 +45,7 @@ func (a *API) Start() error {
 
 	// Group the routes
 	userRoutes := v1.Group("/users")
-	auth := v1.Group("/auth") 
+	auth := v1.Group("/auth")
 	chat := v1.Group("/chat")
 	session := v1.Group("/session")
 
@@ -60,12 +60,14 @@ func (a *API) Start() error {
 		return err
 	}
 	fmt.Println("User routes registered successfully")
-	
+
 	handlers.RegisterAuthRoutes(auth)
 	handlers.RegisterChatRoutes(chat)
 	handlers.RegisterSessionRoutes(session)
-	app.Listen(a.addr)	
-
+	err = app.Listen(fmt.Sprintf(":%s", a.addr))
+	if err != nil {
+		log.Fatalf("Error occurred while listening to port %v :  %v", a.addr, err)
+	}
 
 	return nil
 }

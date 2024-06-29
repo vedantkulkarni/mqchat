@@ -1,0 +1,49 @@
+syntax = 'proto3';
+option go_package = "github.com/vedantkulkarni/mqchat/proto";
+
+import "google/protobuf/timestamp.proto";
+
+
+message Connection {
+   int64  id = 1;
+   int64 user_id_1 = 2;
+   string user_name_1 = 3;
+   int64 user_id_2 = 4;
+   string user_name_2 = 5;
+}
+
+message GetConnectionsRequest {
+  int64 user_id = 1;
+}
+
+message GetConnectionsResponse {
+  int64  user_id = 1;
+  repeated Connection connections = 2;
+}
+
+message CreateConnectionRequest {
+  int64 user_id_1 = 1;
+ string user_name_1 = 2;
+  int64 user_id_2 = 3;
+ string user_name_2 = 4;
+
+}
+message CreateConnectionResponse {
+  int64 conn_id = 1;
+}
+
+message GetConnectionRequest {
+  int64 conn_id = 1;
+  int64 user_id_1 = 2;
+  int64 user_id_2 = 3;
+}
+message GetConnectionResponse {
+  Connection connection = 1;
+}
+
+service ConnectionGRPCService{
+  rpc CreateConnection(CreateConnectionRequest) returns (CreateConnectionResponse) {}
+  rpc GetConnection(GetConnectionRequest) returns (GetConnectionResponse) {}
+  rpc GetConnections(GetConnectionsRequest) returns (GetConnectionsResponse) {}
+}
+

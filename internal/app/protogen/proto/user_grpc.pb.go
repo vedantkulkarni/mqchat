@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.4.0
 // - protoc             v5.26.1
-// source: internal/app/proto/user.proto
+// source: proto/user.proto
 
 package proto
 
@@ -23,6 +23,7 @@ const (
 	UserGRPCService_UpdateUser_FullMethodName = "/UserGRPCService/UpdateUser"
 	UserGRPCService_DeleteUser_FullMethodName = "/UserGRPCService/DeleteUser"
 	UserGRPCService_GetUser_FullMethodName    = "/UserGRPCService/GetUser"
+	UserGRPCService_GetUsers_FullMethodName   = "/UserGRPCService/GetUsers"
 )
 
 // UserGRPCServiceClient is the client API for UserGRPCService service.
@@ -33,6 +34,7 @@ type UserGRPCServiceClient interface {
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
+	GetUsers(ctx context.Context, in *GetUsersRequest, opts ...grpc.CallOption) (*GetUsersResponse, error)
 }
 
 type userGRPCServiceClient struct {
@@ -83,6 +85,16 @@ func (c *userGRPCServiceClient) GetUser(ctx context.Context, in *GetUserRequest,
 	return out, nil
 }
 
+func (c *userGRPCServiceClient) GetUsers(ctx context.Context, in *GetUsersRequest, opts ...grpc.CallOption) (*GetUsersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUsersResponse)
+	err := c.cc.Invoke(ctx, UserGRPCService_GetUsers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserGRPCServiceServer is the server API for UserGRPCService service.
 // All implementations must embed UnimplementedUserGRPCServiceServer
 // for forward compatibility
@@ -91,6 +103,7 @@ type UserGRPCServiceServer interface {
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
+	GetUsers(context.Context, *GetUsersRequest) (*GetUsersResponse, error)
 	mustEmbedUnimplementedUserGRPCServiceServer()
 }
 
@@ -109,6 +122,9 @@ func (UnimplementedUserGRPCServiceServer) DeleteUser(context.Context, *DeleteUse
 }
 func (UnimplementedUserGRPCServiceServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+}
+func (UnimplementedUserGRPCServiceServer) GetUsers(context.Context, *GetUsersRequest) (*GetUsersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
 }
 func (UnimplementedUserGRPCServiceServer) mustEmbedUnimplementedUserGRPCServiceServer() {}
 
@@ -195,6 +211,24 @@ func _UserGRPCService_GetUser_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserGRPCService_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUsersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserGRPCServiceServer).GetUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserGRPCService_GetUsers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserGRPCServiceServer).GetUsers(ctx, req.(*GetUsersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserGRPCService_ServiceDesc is the grpc.ServiceDesc for UserGRPCService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -218,7 +252,11 @@ var UserGRPCService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "GetUser",
 			Handler:    _UserGRPCService_GetUser_Handler,
 		},
+		{
+			MethodName: "GetUsers",
+			Handler:    _UserGRPCService_GetUsers_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/app/proto/user.proto",
+	Metadata: "proto/user.proto",
 }
