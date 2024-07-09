@@ -3,14 +3,17 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"net"
+	"os"
+
 	"github.com/joho/godotenv"
 	api "github.com/vedantkulkarni/mqchat/api"
 	"github.com/vedantkulkarni/mqchat/database"
-	connService "github.com/vedantkulkarni/mqchat/internal/app/services/connection_service"
-	userService "github.com/vedantkulkarni/mqchat/internal/app/services/user_service"
-	util "github.com/vedantkulkarni/mqchat/internal/common"
-	"net"
-	"os"
+
+	userService "github.com/vedantkulkarni/mqchat/services/user_service"
+	connService "github.com/vedantkulkarni/mqchat/services/connection_service"
+
+	util "github.com/vedantkulkarni/mqchat/pkg/utils"
 )
 
 var (
@@ -24,13 +27,15 @@ const (
 )
 
 type ServerConfig struct {
-	HttpPort string
-	GrpcPort string
+	HttpPort        string
+	UserServicePort string
+	ConnServicePort string
 }
 
 func getServerConfig(s *ServerConfig) *ServerConfig {
 	s.HttpPort = util.GetEnvVarInt("HTTP_PORT", 8080)
-	s.GrpcPort = util.GetEnvVarInt("GRPC_PORT", 2000)
+	s.UserServicePort = util.GetEnvVarInt("USER_SERVICE_GRPC_PORT", 2000)
+	s.ConnServicePort = util.GetEnvVarInt("CONNECTION_SERVICE_GRPC_PORT", 2100)
 
 	return s
 }
@@ -61,18 +66,34 @@ func main() {
 	}(db.DB)
 
 	//Listen to gRPC responses
-	listener, err := net.Listen("tcp", "localhost:"+config.GrpcPort)
+	listener, err := net.Listen("tcp", "localhost:"+config.UserServicePort)
+	if err != nil {
+		fmt.Printf("Error occured while listening to the port %v", err)
+		listener.Close()
+		return
+	}
+
+	func(listener net.Listener) {
+		err := listener.Close()
+		fmt.Println("Closed the listner")
+		if err != nil {
+			fmt.Println("Error occurred while closing the listener")
+		}
+	}(listener)
+
+	//Listen to gRPC responses
+	listenerConn, err := net.Listen("tcp", "localhost:"+config.ConnServicePort)
 	if err != nil {
 		fmt.Printf("Error occured while listening to the port %v", err)
 		return
 	}
 
 	defer func(listener net.Listener) {
-		err := listener.Close()
+		err := listenerConn.Close()
 		if err != nil {
 			println("Error occurred while closing the listener")
 		}
-	}(listener)
+	}(listenerConn)
 
 	//Initialize User Service
 	userServer, err := userService.NewUserGRPCServer(db)
@@ -80,7 +101,12 @@ func main() {
 		fmt.Println("Error occurred while creating the gRPC server : User")
 		return
 	}
-	go userServer.StartService(listener)
+	go func() {
+		err := userServer.StartService(listener)
+		if err != nil {
+			fmt.Println("Error occurred while starting the gRPC server : User")
+		}
+	}()
 
 	//Initialize Connections Service
 	connServer, err := connService.NewConnectionGRPCServer(db)
@@ -89,10 +115,15 @@ func main() {
 		return
 	}
 
-	go connServer.StartService(listener)
+	go func() {
+		err := connServer.StartService(listenerConn)
+		if err != nil {
+			fmt.Println("Error occurred while starting the gRPC server : Connection")
+		}
+	}()
 
 	//Initialize the REST API server
-	apiServer, err := api.NewAPI(config.HttpPort, config.GrpcPort)
+	apiServer, err := api.NewAPI(config.HttpPort, config.UserServicePort, config.ConnServicePort)
 	if err != nil {
 		fmt.Println("Error occured while creating the server")
 	}

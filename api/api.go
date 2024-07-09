@@ -14,13 +14,16 @@ import (
 type API struct {
 	addr     string
 	grpcAddr string
+	connGrpcAddr string
+	chatGrpcAddr string
 }
 
-func NewAPI(addr string, grpcAddr string) (*API, error) {
+func NewAPI(addr string, grpcAddr string, connGrpcAddr string) (*API, error) {
 
 	return &API{
 		addr:     addr,
 		grpcAddr: grpcAddr,
+		connGrpcAddr: connGrpcAddr,
 	}, nil
 }
 
@@ -31,12 +34,23 @@ func (a *API) Start() error {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
-	conn, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.grpcAddr), opts...)
+	user, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.grpcAddr), opts...)
 	if err != nil {
 		log.Println("Error occurred while connecting to the gRPC server")
 		return err
 	}
-	log.Println("grpc dial successful")
+
+	conn, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.connGrpcAddr), opts...)
+	if err != nil {
+		log.Println("Error occurred while connecting to the gRPC server")
+		return err
+	}
+
+	chat, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.chatGrpcAddr), opts...)
+	if err != nil {
+		log.Println("Error occurred while connecting to the gRPC server")
+		return err
+	}	
 
 	app := fiber.New()
 	api := app.Group("/api")
@@ -46,14 +60,15 @@ func (a *API) Start() error {
 	// Group the routes
 	userRoutes := v1.Group("/users")
 	auth := v1.Group("/auth")
-	chat := v1.Group("/chat")
+	chatRoutes := v1.Group("/chat")
 	session := v1.Group("/session")
 
 	// Register the routes
 
 	// User Routes
-	client := proto.NewUserGRPCServiceClient(conn)
-	userHandler := handlers.NewUserHandler(client)
+	userClient := proto.NewUserGRPCServiceClient(user)
+	connClient := proto.NewConnectionGRPCServiceClient(conn)
+	userHandler := handlers.NewUserHandler(userClient, connClient)
 	err = userHandler.RegisterUserRoutes(userRoutes)
 	if err != nil {
 		fmt.Println("Error occured while registering the user routes")
@@ -61,8 +76,19 @@ func (a *API) Start() error {
 	}
 	fmt.Println("User routes registered successfully")
 
+
+	//Chat Routes
+	chatClient := proto.NewChatServiceClient(chat)
+	chatHandler := handlers.NewChatHandler(chatClient)
+	err = chatHandler.RegisterChatRoutes(chatRoutes)
+	if err != nil {
+		fmt.Println("Error occured while registering the chat routes")
+		return err
+	}
+	fmt.Println("Chat routes registered successfully")
+
 	handlers.RegisterAuthRoutes(auth)
-	handlers.RegisterChatRoutes(chat)
+	// handlers.RegisterChatRoutes(chat)
 	handlers.RegisterSessionRoutes(session)
 	err = app.Listen(fmt.Sprintf(":%s", a.addr))
 	if err != nil {

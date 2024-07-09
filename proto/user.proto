@@ -9,7 +9,7 @@ option go_package = "github.com/vedantkulkarni/mqchat/proto";
 
 
 message User{
-    string id = 1;
+    int64 id = 1;
     string username = 2;
     string email = 3;
     google.protobuf.Timestamp created_at = 4;
@@ -25,7 +25,7 @@ message CreateUserResponse{
 }
 
 message UpdateUserRequest{
-    string id = 1;
+    int64 id = 1;
     string username = 2;
     string email = 3;
 }
@@ -34,21 +34,21 @@ message UpdateUserResponse{
 }
 
 message DeleteUserRequest{
-    string id = 1;
+    int64 id = 1;
 }
 message DeleteUserResponse{
     bool message = 1;
 }
 
 message GetUserRequest{
-    string id = 1;
+    int64 id = 1;
 }
 message GetUserResponse{
     User user = 1;
 }
 
 message GetUsersRequest{
-    string id = 1;
+    int64 id = 1;
 }
 message GetUsersResponse{
     repeated User users = 1;

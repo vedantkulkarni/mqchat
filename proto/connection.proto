@@ -1,15 +1,12 @@
 syntax = 'proto3';
 option go_package = "github.com/vedantkulkarni/mqchat/proto";
 
-import "google/protobuf/timestamp.proto";
 
 
 message Connection {
    int64  id = 1;
    int64 user_id_1 = 2;
-   string user_name_1 = 3;
-   int64 user_id_2 = 4;
-   string user_name_2 = 5;
+   int64 user_id_2 = 3;
 }
 
 message GetConnectionsRequest {
@@ -23,9 +20,7 @@ message GetConnectionsResponse {
 
 message CreateConnectionRequest {
   int64 user_id_1 = 1;
- string user_name_1 = 2;
-  int64 user_id_2 = 3;
- string user_name_2 = 4;
+  int64 user_id_2 = 2;
 
 }
 message CreateConnectionResponse {

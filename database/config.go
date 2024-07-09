@@ -1,7 +1,6 @@
 package database
 
-import util "github.com/vedantkulkarni/mqchat/internal/common"
-
+import util "github.com/vedantkulkarni/mqchat/pkg/utils"
 type DatabaseConfig struct {
 	Host     string
 	Port     string
