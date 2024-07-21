@@ -8,19 +8,19 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/vedantkulkarni/mqchat/internal/app/protogen/proto"
+	"github.com/vedantkulkarni/mqchat/gen/proto"
 	jsonUtils "github.com/vedantkulkarni/mqchat/pkg/utils"
 	"google.golang.org/grpc/status"
 )
 
 type UserHandler struct {
-	grpcUserClient     proto.UserGRPCServiceClient
+	grpcUserClient proto.UserGRPCServiceClient
 	grpcConnClient proto.ConnectionGRPCServiceClient
 }
 
 func NewUserHandler(client proto.UserGRPCServiceClient, connection proto.ConnectionGRPCServiceClient) *UserHandler {
 	return &UserHandler{
-		grpcUserClient:     client,
+		grpcUserClient: client,
 		grpcConnClient: connection,
 	}
 }

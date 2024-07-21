@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/vedantkulkarni/mqchat/api/handlers"
-	"github.com/vedantkulkarni/mqchat/internal/app/protogen/proto"
+	"github.com/vedantkulkarni/mqchat/gen/proto"
 	"google.golang.org/grpc"
 
 	"github.com/gofiber/fiber/v3"
@@ -63,8 +63,6 @@ func (a *API) Start() error {
 	chatRoutes := v1.Group("/chat")
 	session := v1.Group("/session")
 
-	// Register the routes
-
 	// User Routes
 	userClient := proto.NewUserGRPCServiceClient(user)
 	connClient := proto.NewConnectionGRPCServiceClient(conn)
@@ -75,7 +73,6 @@ func (a *API) Start() error {
 		return err
 	}
 	fmt.Println("User routes registered successfully")
-
 
 	//Chat Routes
 	chatClient := proto.NewChatServiceClient(chat)

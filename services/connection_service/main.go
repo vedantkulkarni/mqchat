@@ -8,7 +8,7 @@ import (
 
 	"github.com/vedantkulkarni/mqchat/database"
 	"github.com/vedantkulkarni/mqchat/gen/models"
-	"github.com/vedantkulkarni/mqchat/internal/app/protogen/proto"
+	"github.com/vedantkulkarni/mqchat/gen/proto"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"google.golang.org/grpc"

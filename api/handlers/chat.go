@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/vedantkulkarni/mqchat/internal/app/protogen/proto"
+	"github.com/vedantkulkarni/mqchat/gen/proto"
 	jsonUtils "github.com/vedantkulkarni/mqchat/pkg/utils"
 )
 
@@ -43,11 +43,11 @@ func (h *ChatHandler) GetMessages(c fiber.Ctx) error {
 	getMessages := new(proto.GetMessagesRequest)
 	user_1, _ := strconv.Atoi(user_id_1)
 	user_2, _ := strconv.Atoi(user_id_2)
-	getMessages.Initialize = initialize 
+	getMessages.Initialize = initialize
 	getMessages.UserId_1 = int64(user_1)
 	getMessages.UserId_2 = int64(user_2)
 
-	response, err := h.grpcChatClient.GetMessages(c.Context(),getMessages)
+	response, err := h.grpcChatClient.GetMessages(c.Context(), getMessages)
 	if err != nil {
 		jsonUtils.WriteJson(
 			fiber.ErrBadGateway.Code,
@@ -55,8 +55,8 @@ func (h *ChatHandler) GetMessages(c fiber.Ctx) error {
 			jsonUtils.BadRequestApiError,
 			c,
 		)
-	}	
-	
+	}
+
 	fmt.Printf("Sent message : %s", response)
 
 	return jsonUtils.WriteJson(
@@ -64,7 +64,7 @@ func (h *ChatHandler) GetMessages(c fiber.Ctx) error {
 		response,
 		nil,
 		c,
-	)	
+	)
 
 }
 

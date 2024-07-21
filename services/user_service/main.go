@@ -9,7 +9,7 @@ import (
 
 	"github.com/vedantkulkarni/mqchat/database"
 	"github.com/vedantkulkarni/mqchat/gen/models"
-	"github.com/vedantkulkarni/mqchat/internal/app/protogen/proto"
+	"github.com/vedantkulkarni/mqchat/gen/proto"
 	env "github.com/vedantkulkarni/mqchat/pkg/utils"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -130,6 +130,7 @@ func (u *UserGRPCServer) UpdateUser(ctx context.Context, req *proto.UpdateUserRe
 }
 
 func NewUserGRPCServer(db *database.DbInterface) (*UserGRPCServer, error) {
+	//This microservice internally connects to the 'connections' microservice
 	connectionServicePort := env.GetEnvVarInt("CONNECTION_SERVICE_GRPC_PORT", 2100)
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
@@ -137,7 +138,7 @@ func NewUserGRPCServer(db *database.DbInterface) (*UserGRPCServer, error) {
 
 	conn, err := grpc.NewClient(fmt.Sprintf("localhost:%v", connectionServicePort), opts...)
 	if err != nil {
-		log.Println("Error occurred while connecting to the gRPC server")
+		log.Fatalf("Error occurred while connecting to the gRPC server : %v", err)
 		return nil, err
 	}
 
@@ -156,7 +157,7 @@ func (u *UserGRPCServer) StartService(listner net.Listener) error {
 
 	fmt.Println("gRPC user server registered successfully")
 	if err := g.Serve(listner); err != nil {
-		fmt.Println("Error occured while serving the gRPC server")
+		log.Fatalf("Error occured while serving the gRPC server : %v", err)
 		return err
 	}
 	fmt.Println("gRPC user server started successfully!")

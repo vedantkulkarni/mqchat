@@ -5,7 +5,7 @@ import (
 )
 
 func RegisterSessionRoutes(auth fiber.Router) error {
-	
+	//TODO : Implement sessions microservices to get the last seen and currently active status.	
 
 	return nil
 }
