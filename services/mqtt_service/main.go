@@ -20,9 +20,8 @@ func NewMQTTService(chatClient *proto.ChatServiceClient, messageStreamClient *pr
 	mqttServer := mqtt.New(&mqtt.Options{
 		InlineClient: false,
 	})
-	var clientList map[string]*mqtt.Client = make(map[string]*mqtt.Client)
 	_ = mqttServer.AddHook(new(auth.AllowHook), nil)
-	_ = mqttServer.AddHook(new(controller.ChatMQTTHook), &controller.ChatHookOptions{Server: mqttServer, ChatGRPCClient: chatClient, ChatGRPCGetMessagesClient: messageStreamClient, ClientConns: &clientList})
+	_ = mqttServer.AddHook(new(controller.ChatMQTTHook), &controller.ChatHookOptions{Server: mqttServer, ChatGRPCClient: chatClient, ChatGRPCGetMessagesClient: messageStreamClient,})
 	return &MQTTService{
 		Server:                    mqttServer,
 		ChatGRPCClient:            chatClient,

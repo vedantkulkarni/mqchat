@@ -10,7 +10,9 @@ import (
 	"github.com/vedantkulkarni/mqchat/gen/models"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type ChatGRPCServer struct {
@@ -41,6 +43,31 @@ func (g *ChatGRPCServer) SendMessage(ctx context.Context, req *proto.SendMessage
 
 }
 func (g *ChatGRPCServer) GetMessages(req *proto.GetMessagesRequest, stream proto.ChatService_GetMessagesServer) error {
+
+	//Get chat messages from db
+	chatMessages, err := models.Chats(qm.Where("to_user_id=?",req.UserId_2), qm.And("from_user_id=?",req.UserId_1), qm.Limit(50)).All(context.Background(), g.DB)
+	if err != nil {
+		fmt.Println("Error occured while fetching chat messages from db")
+		return err
+	}
+
+	//Send chat messages to client
+	for _, chatMessage := range chatMessages {
+		message := &proto.Message{
+			UserId_1: int64(chatMessage.FromUserID),
+			UserId_2: int64(chatMessage.ToUserID),
+			Content:  chatMessage.Message,
+			CreatedAt: timestamppb.New(chatMessage.CreatedAt.Time),
+		}
+	
+		if err := stream.Send(message); err != nil {
+			fmt.Println("Error occured while sending chat message to client")
+			return err
+		}
+	}
+
+
+
 	return nil
 }
 

@@ -64,8 +64,6 @@ func main() {
 		fmt.Println("Error occurred while connecting to the database")
 	}
 
-	fmt.Println("Database connected successfully")
-
 	defer func(DB *sql.DB) {
 		err := DB.Close()
 		if err != nil {
@@ -76,7 +74,7 @@ func main() {
 	//Listen to gRPC responses
 	listener, err := net.Listen("tcp", "localhost:"+config.UserServicePort)
 	if err != nil {
-		fmt.Printf("Error occured while listening to the port %v", err)
+		log.Panic("user service port err:", err)
 		listener.Close()
 		return
 	}
@@ -164,7 +162,7 @@ func main() {
 	}
 	chat, err := grpc.NewClient(fmt.Sprintf("localhost:%s", config.ChatServicePort), opts...)
 	if err != nil {
-		log.Println("Error occurred while connecting to the gRPC server")
+		log.Println("Error while listening to mqtt service")
 	}	
 	chatClient := proto.NewChatServiceClient(chat)
 	//TODO: Add Streaming client
