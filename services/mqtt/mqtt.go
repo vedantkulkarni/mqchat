@@ -9,7 +9,6 @@ import (
 	"github.com/mochi-mqtt/server/v2/listeners"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
 	"github.com/vedantkulkarni/mqchat/pkg/utils"
-	"github.com/vedantkulkarni/mqchat/services/mqtt/controller"
 	"google.golang.org/grpc"
 )
 

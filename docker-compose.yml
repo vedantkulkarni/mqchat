@@ -41,7 +41,7 @@ services:
     build: 
       context: .
       dockerfile: services/chat/Dockerfile
-    # image: chat
+    image: chat
     restart: always
     ports:
       - "8002:2200"
@@ -50,15 +50,18 @@ services:
     environment:
       DEBUG: "True"
 
-  # user_service:
-  #   build: ./user_service
-  #   restart: always
-  #   ports:
-  #     - "8003:8003"
-  #   depends_on:
-  #     - db
-  #   environment:
-  #     DEBUG: "True"
+  user_service:
+    build:
+      context: .
+      dockerfile: services/user/Dockerfile
+    image: user
+    restart: always
+    ports:
+      - "8003:2000"
+    depends_on:
+      - db
+    environment:
+      DEBUG: "True"
 
   # connection_service:
   #   build: ./connection_service

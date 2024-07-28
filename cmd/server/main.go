@@ -68,17 +68,7 @@ func main() {
 	}(db.DB)
 
 
-	userServer, err := user.NewUserGRPCServer(db)
-	if err != nil {
-		fmt.Println("Error occurred while creating the gRPC server : User")
-		return
-	}
-	go func() {
-		err := userServer.StartService(config.UserServicePort)
-		if err != nil {
-			fmt.Println("Error occurred while starting the gRPC server : User")
-		}
-	}()
+
 
 	connServer, err := connection.NewConnectionGRPCServer(db)
 	if err != nil {
