@@ -20,6 +20,6 @@ RUN go mod tidy
 
 RUN go build -o user ./services/user/main.go
 
-EXPOSE 8002
+EXPOSE 8003
 
 CMD ["./user"]

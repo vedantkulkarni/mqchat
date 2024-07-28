@@ -1,18 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
 	api "github.com/vedantkulkarni/mqchat/api"
-	"github.com/vedantkulkarni/mqchat/database"
-
-	"github.com/vedantkulkarni/mqchat/services/chat/controller"
-	"github.com/vedantkulkarni/mqchat/services/connection"
-	"github.com/vedantkulkarni/mqchat/services/mqtt"
-	"github.com/vedantkulkarni/mqchat/services/user"
 
 	util "github.com/vedantkulkarni/mqchat/pkg/utils"
 )
@@ -53,53 +46,21 @@ func main() {
 	//Get configurations
 	config := &ServerConfig{}
 	config = getServerConfig(config)
+	// connServer, err := connection.NewConnectionGRPCServer(db)
+	// if err != nil {
+	// 	fmt.Println("Error occurred while creating the gRPC server : Connection")
+	// 	return
+	// }
 
-	//DB
-	db, err := database.NewPostgresDB()
-	if err != nil {
-		fmt.Println("Error occurred while connecting to the database")
-	}
+	// go func() {
+	// 	err := connServer.StartService(config.ConnServicePort)
+	// 	if err != nil {
+	// 		fmt.Println("Error occurred while starting the gRPC server : Connection")
+	// 	}
+	// }()
 
-	defer func(DB *sql.DB) {
-		err := DB.Close()
-		if err != nil {
-			fmt.Println("Error occurred while closing DB")
-		}
-	}(db.DB)
-
-
-
-
-	connServer, err := connection.NewConnectionGRPCServer(db)
-	if err != nil {
-		fmt.Println("Error occurred while creating the gRPC server : Connection")
-		return
-	}
-
-	go func() {
-		err := connServer.StartService(config.ConnServicePort)
-		if err != nil {
-			fmt.Println("Error occurred while starting the gRPC server : Connection")
-		}
-	}()
-
-	chatServer, err := controller.NewChatGRPCServer(db)
-	if err != nil {
-		fmt.Println("Error occurred while creating the gRPC server : Chat")
-		return
-	}
-
-	go func() {
-		err := chatServer.StartService(config.ChatServicePort)
-		if err != nil {
-			fmt.Println("Error occurred while starting the gRPC server : Chat")
-		}
-	}()
-
-	
-	
-	mqttServer := mqtt.NewMQTTService()
-	mqttServer.Start(config.MQTTServicePort)
+	// mqttServer := mqtt.NewMQTTService()
+	// mqttServer.Start(config.MQTTServicePort)
 
 	// REST API Server
 	apiServer, err := api.NewAPI(config.HttpPort, config.UserServicePort, config.ConnServicePort)
