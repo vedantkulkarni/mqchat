@@ -1,4 +1,4 @@
-package chat
+package controller
 
 import (
 	"context"
@@ -103,3 +103,5 @@ func (g *ChatGRPCServer) StartService(port string) error {
 	<-block
 	return nil
 }
+
+

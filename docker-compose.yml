@@ -7,38 +7,41 @@ services:
     environment: 
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mqchat
+      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
     
-  server:
-    build: ./server
-    restart: always
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-      - auth_service
-      - chat_service
-      - user_service
-      - connection_service
-      - mqtt_service
-    environment:
-      DEBUG: "True"
+  # server:
+  #   build: ./server
+  #   restart: always
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     - db
+  #     - auth_service
+  #     - chat_service
+  #     - user_service
+  #     - connection_service
+  #     - mqtt_service
+  #   environment:
+  #     DEBUG: "True"
     
-  auth_service:
-    build: ./auth_service
-    restart: always
-    ports:
-      - "8001:8001"
-    depends_on:
-      - db
-    environment:
-      DEBUG: "True"
-      ALLOWED_HOSTS: "*"
-  
+  # auth_service:
+  #   build: ./services/auth/
+  #   restart: always
+  #   ports:
+  #     - "8001:8001"
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     DEBUG: "True"
+  #     ALLOWED_HOSTS: "*"
+
   chat_service:
-    build: ./services/chat/
+    build: 
+      context: .
+      dockerfile: services/chat/Dockerfile
+    # image: chat
     restart: always
     ports:
       - "8002:2200"
@@ -47,35 +50,35 @@ services:
     environment:
       DEBUG: "True"
 
-  user_service:
-    build: ./user_service
-    restart: always
-    ports:
-      - "8003:8003"
-    depends_on:
-      - db
-    environment:
-      DEBUG: "True"
+  # user_service:
+  #   build: ./user_service
+  #   restart: always
+  #   ports:
+  #     - "8003:8003"
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     DEBUG: "True"
 
-  connection_service:
-    build: ./connection_service
-    restart: always
-    ports:
-      - "8004:8004"
-    depends_on:
-      - db
-    environment:
-      DEBUG: "True"
+  # connection_service:
+  #   build: ./connection_service
+  #   restart: always
+  #   ports:
+  #     - "8004:8004"
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     DEBUG: "True"
 
-  mqtt_service:
-    build: ./mqtt_service
-    restart: always
-    ports:
-      - "1883:1883"
-    depends_on:
-      - db
-    environment:
-      DEBUG: "True"
+  # mqtt_service:
+  #   build: ./mqtt_service
+  #   restart: always
+  #   ports:
+  #     - "1883:1883"
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     DEBUG: "True"
       
   
 

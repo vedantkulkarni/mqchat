@@ -9,7 +9,7 @@ import (
 	api "github.com/vedantkulkarni/mqchat/api"
 	"github.com/vedantkulkarni/mqchat/database"
 
-	"github.com/vedantkulkarni/mqchat/services/chat"
+	"github.com/vedantkulkarni/mqchat/services/chat/controller"
 	"github.com/vedantkulkarni/mqchat/services/connection"
 	"github.com/vedantkulkarni/mqchat/services/mqtt"
 	"github.com/vedantkulkarni/mqchat/services/user"
@@ -93,7 +93,7 @@ func main() {
 		}
 	}()
 
-	chatServer, err := chat.NewChatGRPCServer(db)
+	chatServer, err := controller.NewChatGRPCServer(db)
 	if err != nil {
 		fmt.Println("Error occurred while creating the gRPC server : Chat")
 		return
