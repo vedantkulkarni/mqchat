@@ -1,4 +1,4 @@
-package connection_service
+package connection
 
 import (
 	"context"
@@ -61,9 +61,9 @@ func (c *ConnectionGRPCServer) GetConnection(ctx context.Context, req *proto.Get
 	fmt.Println(conn)
 	response := &proto.GetConnectionResponse{
 		Connection: &proto.Connection{
-			UserId_1:   int64(conn.UserID1),
-			UserId_2:   int64(conn.UserID2),
-			Id:         int64(conn.ID),
+			UserId_1: int64(conn.UserID1),
+			UserId_2: int64(conn.UserID2),
+			Id:       int64(conn.ID),
 		},
 	}
 	return response, nil
@@ -88,9 +88,9 @@ func (c *ConnectionGRPCServer) GetConnections(ctx context.Context, req *proto.Ge
 
 	for _, conn := range conn {
 		connections = append(connections, &proto.Connection{
-			Id:         int64(conn.ID),
-			UserId_1:   int64(conn.UserID1),
-			UserId_2:   int64(conn.UserID2),
+			Id:       int64(conn.ID),
+			UserId_1: int64(conn.UserID1),
+			UserId_2: int64(conn.UserID2),
 		})
 	}
 
@@ -107,7 +107,20 @@ func NewConnectionGRPCServer(db *database.DbInterface) (*ConnectionGRPCServer, e
 	}, nil
 }
 
-func (c *ConnectionGRPCServer) StartService(listener net.Listener) error {
+func (c *ConnectionGRPCServer) StartService(port string) error {
+	var block chan struct{}
+	//Listen to gRPC responses
+	listener, err := net.Listen("tcp", "localhost:"+port)
+	if err != nil {
+		fmt.Printf("Error occured while listening to the port %v", err)
+	}
+
+	defer func(listener net.Listener) {
+		err := listener.Close()
+		if err != nil {
+			println("Error occurred while closing the listener")
+		}
+	}(listener)
 
 	g := grpc.NewServer()
 	fmt.Println("Starting gRPC connection server")
@@ -119,6 +132,8 @@ func (c *ConnectionGRPCServer) StartService(listener net.Listener) error {
 		fmt.Println("Error occurred while serving the gRPC server")
 		return err
 	}
+
+	<- block
 	return nil
 
 }

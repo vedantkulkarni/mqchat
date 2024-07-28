@@ -1,4 +1,4 @@
-package chatservice
+package chat
 
 import (
 	"context"
@@ -45,7 +45,7 @@ func (g *ChatGRPCServer) SendMessage(ctx context.Context, req *proto.SendMessage
 func (g *ChatGRPCServer) GetMessages(req *proto.GetMessagesRequest, stream proto.ChatService_GetMessagesServer) error {
 
 	//Get chat messages from db
-	chatMessages, err := models.Chats(qm.Where("to_user_id=?",req.UserId_2), qm.And("from_user_id=?",req.UserId_1), qm.Limit(50)).All(context.Background(), g.DB)
+	chatMessages, err := models.Chats(qm.Where("to_user_id=?", req.UserId_2), qm.And("from_user_id=?", req.UserId_1), qm.Limit(50)).All(context.Background(), g.DB)
 	if err != nil {
 		fmt.Println("Error occured while fetching chat messages from db")
 		return err
@@ -54,19 +54,17 @@ func (g *ChatGRPCServer) GetMessages(req *proto.GetMessagesRequest, stream proto
 	//Send chat messages to client
 	for _, chatMessage := range chatMessages {
 		message := &proto.Message{
-			UserId_1: int64(chatMessage.FromUserID),
-			UserId_2: int64(chatMessage.ToUserID),
-			Content:  chatMessage.Message,
+			UserId_1:  int64(chatMessage.FromUserID),
+			UserId_2:  int64(chatMessage.ToUserID),
+			Content:   chatMessage.Message,
 			CreatedAt: timestamppb.New(chatMessage.CreatedAt.Time),
 		}
-	
+
 		if err := stream.Send(message); err != nil {
 			fmt.Println("Error occured while sending chat message to client")
 			return err
 		}
 	}
-
-
 
 	return nil
 }
@@ -77,16 +75,31 @@ func NewChatGRPCServer(db *database.DbInterface) (*ChatGRPCServer, error) {
 	}, nil
 }
 
-func (g *ChatGRPCServer) StartService(listner net.Listener) error {
+func (g *ChatGRPCServer) StartService(port string) error {
+	var block chan struct{}
+	//Listen to gRPC responses
+	listener, err := net.Listen("tcp", "localhost:"+port)
+	if err != nil {
+		fmt.Printf("Error occured while listening to the port %v", err)
+	}
+
+	defer func(listener net.Listener) {
+		err := listener.Close()
+		if err != nil {
+			println("Error occurred while closing the listener")
+		}
+	}(listener)
 	server := grpc.NewServer()
 
 	proto.RegisterChatServiceServer(server, g)
 
 	fmt.Println("gRPC chat server registered successfully")
-	if err := server.Serve(listner); err != nil {
+	if err := server.Serve(listener); err != nil {
 		fmt.Println("Error occured while serving the chat gRPC server")
 		return err
 	}
 	fmt.Println("gRPC chat server started successfully!")
+
+	<-block
 	return nil
 }

@@ -3,20 +3,16 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
-	"net"
 	"os"
 
 	"github.com/joho/godotenv"
 	api "github.com/vedantkulkarni/mqchat/api"
 	"github.com/vedantkulkarni/mqchat/database"
-	"github.com/vedantkulkarni/mqchat/gen/proto"
-	"google.golang.org/grpc"
 
-	chatService "github.com/vedantkulkarni/mqchat/services/chat_service"
-	connService "github.com/vedantkulkarni/mqchat/services/connection_service"
-	mqttservice "github.com/vedantkulkarni/mqchat/services/mqtt_service"
-	userService "github.com/vedantkulkarni/mqchat/services/user_service"
+	"github.com/vedantkulkarni/mqchat/services/chat"
+	"github.com/vedantkulkarni/mqchat/services/connection"
+	"github.com/vedantkulkarni/mqchat/services/mqtt"
+	"github.com/vedantkulkarni/mqchat/services/user"
 
 	util "github.com/vedantkulkarni/mqchat/pkg/utils"
 )
@@ -58,7 +54,7 @@ func main() {
 	config := &ServerConfig{}
 	config = getServerConfig(config)
 
-	//Connect to the database
+	//DB
 	db, err := database.NewPostgresDB()
 	if err != nil {
 		fmt.Println("Error occurred while connecting to the database")
@@ -71,106 +67,51 @@ func main() {
 		}
 	}(db.DB)
 
-	//Listen to gRPC responses
-	listener, err := net.Listen("tcp", "localhost:"+config.UserServicePort)
-	if err != nil {
-		log.Panic("user service port err:", err)
-		listener.Close()
-		return
-	}
 
-	defer func(listener net.Listener) {
-		err := listener.Close()
-		fmt.Println("Closed the listner")
-		if err != nil {
-			fmt.Println("Error occurred while closing the listener")
-		}
-	}(listener)
-
-	//Listen to gRPC responses
-	listenerConn, err := net.Listen("tcp", "localhost:"+config.ConnServicePort)
-	if err != nil {
-		fmt.Printf("Error occured while listening to the port %v", err)
-		return
-	}
-
-	defer func(listener net.Listener) {
-		err := listenerConn.Close()
-		if err != nil {
-			println("Error occurred while closing the listener")
-		}
-	}(listenerConn)
-
-	//Listen to gRPC responses
-	listenerChat, err := net.Listen("tcp", "localhost:"+config.ChatServicePort)
-	if err != nil {
-		fmt.Printf("Error occured while listening to the port %v", err)
-		return
-	}
-
-	defer func(listener net.Listener) {
-		err := listenerChat.Close()
-		if err != nil {
-			println("Error occurred while closing the listener")
-		}
-	}(listenerChat)
-
-	//Initialize User Service
-	userServer, err := userService.NewUserGRPCServer(db)
+	userServer, err := user.NewUserGRPCServer(db)
 	if err != nil {
 		fmt.Println("Error occurred while creating the gRPC server : User")
 		return
 	}
 	go func() {
-		err := userServer.StartService(listener)
+		err := userServer.StartService(config.UserServicePort)
 		if err != nil {
 			fmt.Println("Error occurred while starting the gRPC server : User")
 		}
 	}()
 
-	//Initialize Connections Service
-	connServer, err := connService.NewConnectionGRPCServer(db)
+	connServer, err := connection.NewConnectionGRPCServer(db)
 	if err != nil {
 		fmt.Println("Error occurred while creating the gRPC server : Connection")
 		return
 	}
 
 	go func() {
-		err := connServer.StartService(listenerConn)
+		err := connServer.StartService(config.ConnServicePort)
 		if err != nil {
 			fmt.Println("Error occurred while starting the gRPC server : Connection")
 		}
 	}()
 
-	// Initialize Chat Service
-	chatServer, err := chatService.NewChatGRPCServer(db)
+	chatServer, err := chat.NewChatGRPCServer(db)
 	if err != nil {
 		fmt.Println("Error occurred while creating the gRPC server : Chat")
 		return
 	}
 
 	go func() {
-		err := chatServer.StartService(listenerChat)
+		err := chatServer.StartService(config.ChatServicePort)
 		if err != nil {
 			fmt.Println("Error occurred while starting the gRPC server : Chat")
 		}
 	}()
 
-	//Listen to Mqtt connections
-	opts := []grpc.DialOption{
-		grpc.WithInsecure(),
-	}
-	chat, err := grpc.NewClient(fmt.Sprintf("localhost:%s", config.ChatServicePort), opts...)
-	if err != nil {
-		log.Println("Error while listening to mqtt service")
-	}	
-	chatClient := proto.NewChatServiceClient(chat)
-	//TODO: Add Streaming client
 	
-	mqttServer := mqttservice.NewMQTTService(&chatClient, nil)
+	
+	mqttServer := mqtt.NewMQTTService()
 	mqttServer.Start(config.MQTTServicePort)
 
-	//Initialize the REST API server
+	// REST API Server
 	apiServer, err := api.NewAPI(config.HttpPort, config.UserServicePort, config.ConnServicePort)
 	if err != nil {
 		fmt.Println("Error occured while creating the server")

@@ -1,4 +1,4 @@
-package controller
+package mqtt
 
 import (
 	"bytes"
@@ -13,11 +13,14 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-//3997
+const (
+	clientMessageTopic string = "mqchat/client/chat/msg/" 
+	clientChatTopic string = "mqchat/client/chat/" 
+)
+
 type ChatHookOptions struct {
 	Server                    *mqtt.Server
 	ChatGRPCClient            *proto.ChatServiceClient
-	ChatGRPCGetMessagesClient *proto.ChatService_GetMessagesClient
 }
 
 type ChatMQTTHook struct {
@@ -61,14 +64,14 @@ func (h *ChatMQTTHook) subscribeCallback(cl *mqtt.Client, sub packets.Subscripti
 
 func (h *ChatMQTTHook) OnConnect(cl *mqtt.Client, pk packets.Packet) error {
 	//TODO: Basic checks if the the userID is authentic, if it exisits or if its already connected
-	h.config.Server.Subscribe(utils.ClientMessageTopic+cl.ID, 0, h.subscribeCallback)
+	h.config.Server.Subscribe(clientMessageTopic+cl.ID, 0, h.subscribeCallback)
 	return nil
 }
 
 func (h *ChatMQTTHook) OnDisconnect(cl *mqtt.Client, err error, expire bool) {
 
 	//Clean up code
-	h.config.Server.Unsubscribe(utils.ClientMessageTopic+cl.ID, 0)
+	h.config.Server.Unsubscribe(clientMessageTopic+cl.ID, 0)
 	h.config.Server.Clients.Delete(cl.ID)
 }
 
