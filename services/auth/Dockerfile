@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY go.mod go.sum .env ./
 
-COPY services/chat/ ./services/chat/
+COPY services/auth/ ./services//
 
 COPY gen/ ./gen/
 
@@ -18,8 +18,8 @@ RUN go mod download
 
 RUN go mod tidy
 
-RUN go build -o chat ./services/chat/main.go
+RUN go build -o auth ./services/auth/main.go
 
-EXPOSE 8002
+EXPOSE 8004
 
-CMD ["./chat"]
+CMD ["./auth"]

@@ -9,6 +9,5 @@ CREATE TABLE users (
     updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-ALTER TABLE users
-ADD CONSTRAINT name_not_empty CHECK ( user_name <> '');
-ADD CONSTRAINT email_not_empty CHECK (user_email <> '')
+ALTER TABLE users ADD CONSTRAINT name_not_empty CHECK ( user_name <> '');
+ALTER TABLE users ADD CONSTRAINT email_not_empty CHECK (user_email <> '')

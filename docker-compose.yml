@@ -3,11 +3,19 @@ name: mqchat
 services: 
   db: 
     image: postgres
-    restart: always
+    # restart: always
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
     environment: 
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "5432:5432"
     
@@ -44,9 +52,10 @@ services:
     image: chat
     restart: always
     ports:
-      - "8002:2200"
+      - "2200:8002"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DEBUG: "True"
 
@@ -57,9 +66,10 @@ services:
     image: user
     restart: always
     ports:
-      - "8003:2000"
+      - "2000:8003"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DEBUG: "True"
 
