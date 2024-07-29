@@ -83,16 +83,33 @@ func (h *ChatMQTTHook) OnUnsubscribed(cl *mqtt.Client, pk packets.Packet) {
 
 func (h *ChatMQTTHook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Packet, error) {
 
+	if pk.TopicName == utils.ClientMessageTopic+cl.ID {
+		return sendMessage(cl, pk, *h.config.ChatGRPCClient, h.config.Server)
+	} else if pk.TopicName == utils.ClientChatTopic+cl.ID {
+		return getMessages(cl, pk, *h.config.ChatGRPCGetMessagesClient)
+	}
 
+	return pk, nil
+	
+}
+
+func (h *ChatMQTTHook) OnPublished(cl *mqtt.Client, pk packets.Packet) {
+}
+
+
+//Helpers
+func sendMessage(cl *mqtt.Client, pk packets.Packet, grpcClient proto.ChatServiceClient,server *mqtt.Server) (packets.Packet, error) {
 	message := pk.Payload
 	chatMessage := &proto.Message{}
 	protojson.Unmarshal(message, chatMessage)
+
+	fmt.Printf("Received message from client: %v\n", chatMessage)
 
 	// Store chat message to a database 
 	sendMessageRequest := &proto.SendMessageRequest{
 		Message: chatMessage,
 	}
-	response, err := (*h.config.ChatGRPCClient).SendMessage(context.Background(), sendMessageRequest)
+	response, err := grpcClient.SendMessage(context.Background(), sendMessageRequest)
 	if err != nil || response == nil {
 		utils.PublishError(cl, errors.New("an error occurred while sending the message"))	
 		return pk, nil
@@ -101,7 +118,7 @@ func (h *ChatMQTTHook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Pa
 
 	//TODO: Define a common json template for all pub sub messages for chat
 	userId := fmt.Sprintf("%v", sendMessageRequest.Message.UserId_2)
-	client, check:= h.config.Server.Clients.Get(userId)
+	client, check:= server.Clients.Get(userId)
 	if !check || client == nil {
 		utils.PublishError(cl, errors.New("oops! User is not connected at the moment"))	
 		return pk, nil
@@ -111,5 +128,17 @@ func (h *ChatMQTTHook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Pa
 	return pk, nil
 }
 
-func (h *ChatMQTTHook) OnPublished(cl *mqtt.Client, pk packets.Packet) {
+
+
+func getMessages(cl *mqtt.Client, pk packets.Packet, grpcClient proto.ChatService_GetMessagesClient) (packets.Packet, error) {
+
+	response, err:= grpcClient.Recv()
+	if err != nil {
+		utils.PublishError(cl, errors.New("an error occurred while fetching the messages"))
+	}
+
+	utils.PublishMessage(cl, response)
+
+	return pk, nil
 }
+

@@ -11,6 +11,7 @@ message Message {
     google.protobuf.Timestamp created_at = 3;
     int64 user_id_1 = 4;
     int64 user_id_2 = 5;
+    string chat_id = 6;
 }
 
 message SendMessageRequest {
@@ -26,6 +27,7 @@ message GetMessagesRequest {
     int64 user_id_1 = 1;
     int64 user_id_2 = 2;
     bool initialize = 3;
+    string chat_id = 4;
 }
 
 message GetMessagesResponse {

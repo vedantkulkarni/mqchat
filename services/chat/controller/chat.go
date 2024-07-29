@@ -23,14 +23,15 @@ type ChatGRPCServer struct {
 func (g *ChatGRPCServer) SendMessage(ctx context.Context, req *proto.SendMessageRequest) (*proto.SendMessageResponse, error) {
 	//Store chat message in db
 	response := &models.Chat{
-		ToUserID:   int(req.Message.UserId_2),
-		FromUserID: int(req.Message.UserId_1),
-		Message:    req.Message.Content,
+		UserID1: int(req.Message.UserId_2),
+		UserID2: int(req.Message.UserId_1),
+		Message: req.Message.Content,
+		ChatID:  req.Message.ChatId,
 	}
 
 	err := response.Insert(ctx, g.DB, boil.Infer())
 	if err != nil {
-		fmt.Println("Error occured while inserting chat message in db")
+		fmt.Printf("Error occured while inserting chat message in db : %v \n", err)
 		return nil, err
 	}
 
@@ -45,7 +46,8 @@ func (g *ChatGRPCServer) SendMessage(ctx context.Context, req *proto.SendMessage
 func (g *ChatGRPCServer) GetMessages(req *proto.GetMessagesRequest, stream proto.ChatService_GetMessagesServer) error {
 
 	//Get chat messages from db
-	chatMessages, err := models.Chats(qm.Where("to_user_id=?", req.UserId_2), qm.And("from_user_id=?", req.UserId_1), qm.Limit(50)).All(context.Background(), g.DB)
+	//TODO: Implement pagination
+	chatMessages, err := models.Chats(qm.Where("chat_id = ?", req.ChatId), qm.Limit(50), qm.Offset(0), qm.OrderBy("created_at", "DESC")).All(context.Background(), g.DB)
 	if err != nil {
 		fmt.Println("Error occured while fetching chat messages from db")
 		return err
@@ -54,8 +56,9 @@ func (g *ChatGRPCServer) GetMessages(req *proto.GetMessagesRequest, stream proto
 	//Send chat messages to client
 	for _, chatMessage := range chatMessages {
 		message := &proto.Message{
-			UserId_1:  int64(chatMessage.FromUserID),
-			UserId_2:  int64(chatMessage.ToUserID),
+			UserId_1:  int64(chatMessage.UserID1),
+			UserId_2:  int64(chatMessage.UserID2),
+			ChatId:    chatMessage.ChatID,
 			Content:   chatMessage.Message,
 			CreatedAt: timestamppb.New(chatMessage.CreatedAt.Time),
 		}

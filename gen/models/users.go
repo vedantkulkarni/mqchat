@@ -114,21 +114,21 @@ var UserWhere = struct {
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
-	FromUserChats      string
-	ToUserChats        string
+	UserID2Chats       string
+	UserID1Chats       string
 	UserID1Connections string
 	UserID2Connections string
 }{
-	FromUserChats:      "FromUserChats",
-	ToUserChats:        "ToUserChats",
+	UserID2Chats:       "UserID2Chats",
+	UserID1Chats:       "UserID1Chats",
 	UserID1Connections: "UserID1Connections",
 	UserID2Connections: "UserID2Connections",
 }
 
 // userR is where relationships are stored.
 type userR struct {
-	FromUserChats      ChatSlice       `boil:"FromUserChats" json:"FromUserChats" toml:"FromUserChats" yaml:"FromUserChats"`
-	ToUserChats        ChatSlice       `boil:"ToUserChats" json:"ToUserChats" toml:"ToUserChats" yaml:"ToUserChats"`
+	UserID2Chats       ChatSlice       `boil:"UserID2Chats" json:"UserID2Chats" toml:"UserID2Chats" yaml:"UserID2Chats"`
+	UserID1Chats       ChatSlice       `boil:"UserID1Chats" json:"UserID1Chats" toml:"UserID1Chats" yaml:"UserID1Chats"`
 	UserID1Connections ConnectionSlice `boil:"UserID1Connections" json:"UserID1Connections" toml:"UserID1Connections" yaml:"UserID1Connections"`
 	UserID2Connections ConnectionSlice `boil:"UserID2Connections" json:"UserID2Connections" toml:"UserID2Connections" yaml:"UserID2Connections"`
 }
@@ -138,18 +138,18 @@ func (*userR) NewStruct() *userR {
 	return &userR{}
 }
 
-func (r *userR) GetFromUserChats() ChatSlice {
+func (r *userR) GetUserID2Chats() ChatSlice {
 	if r == nil {
 		return nil
 	}
-	return r.FromUserChats
+	return r.UserID2Chats
 }
 
-func (r *userR) GetToUserChats() ChatSlice {
+func (r *userR) GetUserID1Chats() ChatSlice {
 	if r == nil {
 		return nil
 	}
-	return r.ToUserChats
+	return r.UserID1Chats
 }
 
 func (r *userR) GetUserID1Connections() ConnectionSlice {
@@ -482,29 +482,29 @@ func (q userQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool,
 	return count > 0, nil
 }
 
-// FromUserChats retrieves all the chat's Chats with an executor via from_user_id column.
-func (o *User) FromUserChats(mods ...qm.QueryMod) chatQuery {
+// UserID2Chats retrieves all the chat's Chats with an executor via user_id_2 column.
+func (o *User) UserID2Chats(mods ...qm.QueryMod) chatQuery {
 	var queryMods []qm.QueryMod
 	if len(mods) != 0 {
 		queryMods = append(queryMods, mods...)
 	}
 
 	queryMods = append(queryMods,
-		qm.Where("\"chats\".\"from_user_id\"=?", o.UserID),
+		qm.Where("\"chats\".\"user_id_2\"=?", o.UserID),
 	)
 
 	return Chats(queryMods...)
 }
 
-// ToUserChats retrieves all the chat's Chats with an executor via to_user_id column.
-func (o *User) ToUserChats(mods ...qm.QueryMod) chatQuery {
+// UserID1Chats retrieves all the chat's Chats with an executor via user_id_1 column.
+func (o *User) UserID1Chats(mods ...qm.QueryMod) chatQuery {
 	var queryMods []qm.QueryMod
 	if len(mods) != 0 {
 		queryMods = append(queryMods, mods...)
 	}
 
 	queryMods = append(queryMods,
-		qm.Where("\"chats\".\"to_user_id\"=?", o.UserID),
+		qm.Where("\"chats\".\"user_id_1\"=?", o.UserID),
 	)
 
 	return Chats(queryMods...)
@@ -538,9 +538,9 @@ func (o *User) UserID2Connections(mods ...qm.QueryMod) connectionQuery {
 	return Connections(queryMods...)
 }
 
-// LoadFromUserChats allows an eager lookup of values, cached into the
+// LoadUserID2Chats allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadFromUserChats(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+func (userL) LoadUserID2Chats(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
 	var slice []*User
 	var object *User
 
@@ -594,7 +594,7 @@ func (userL) LoadFromUserChats(ctx context.Context, e boil.ContextExecutor, sing
 
 	query := NewQuery(
 		qm.From(`chats`),
-		qm.WhereIn(`chats.from_user_id in ?`, argsSlice...),
+		qm.WhereIn(`chats.user_id_2 in ?`, argsSlice...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -625,24 +625,24 @@ func (userL) LoadFromUserChats(ctx context.Context, e boil.ContextExecutor, sing
 		}
 	}
 	if singular {
-		object.R.FromUserChats = resultSlice
+		object.R.UserID2Chats = resultSlice
 		for _, foreign := range resultSlice {
 			if foreign.R == nil {
 				foreign.R = &chatR{}
 			}
-			foreign.R.FromUser = object
+			foreign.R.UserID2User = object
 		}
 		return nil
 	}
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if local.UserID == foreign.FromUserID {
-				local.R.FromUserChats = append(local.R.FromUserChats, foreign)
+			if local.UserID == foreign.UserID2 {
+				local.R.UserID2Chats = append(local.R.UserID2Chats, foreign)
 				if foreign.R == nil {
 					foreign.R = &chatR{}
 				}
-				foreign.R.FromUser = local
+				foreign.R.UserID2User = local
 				break
 			}
 		}
@@ -651,9 +651,9 @@ func (userL) LoadFromUserChats(ctx context.Context, e boil.ContextExecutor, sing
 	return nil
 }
 
-// LoadToUserChats allows an eager lookup of values, cached into the
+// LoadUserID1Chats allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadToUserChats(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+func (userL) LoadUserID1Chats(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
 	var slice []*User
 	var object *User
 
@@ -707,7 +707,7 @@ func (userL) LoadToUserChats(ctx context.Context, e boil.ContextExecutor, singul
 
 	query := NewQuery(
 		qm.From(`chats`),
-		qm.WhereIn(`chats.to_user_id in ?`, argsSlice...),
+		qm.WhereIn(`chats.user_id_1 in ?`, argsSlice...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -738,24 +738,24 @@ func (userL) LoadToUserChats(ctx context.Context, e boil.ContextExecutor, singul
 		}
 	}
 	if singular {
-		object.R.ToUserChats = resultSlice
+		object.R.UserID1Chats = resultSlice
 		for _, foreign := range resultSlice {
 			if foreign.R == nil {
 				foreign.R = &chatR{}
 			}
-			foreign.R.ToUser = object
+			foreign.R.UserID1User = object
 		}
 		return nil
 	}
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if local.UserID == foreign.ToUserID {
-				local.R.ToUserChats = append(local.R.ToUserChats, foreign)
+			if local.UserID == foreign.UserID1 {
+				local.R.UserID1Chats = append(local.R.UserID1Chats, foreign)
 				if foreign.R == nil {
 					foreign.R = &chatR{}
 				}
-				foreign.R.ToUser = local
+				foreign.R.UserID1User = local
 				break
 			}
 		}
@@ -990,22 +990,22 @@ func (userL) LoadUserID2Connections(ctx context.Context, e boil.ContextExecutor,
 	return nil
 }
 
-// AddFromUserChats adds the given related objects to the existing relationships
+// AddUserID2Chats adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
-// Appends related to o.R.FromUserChats.
-// Sets related.R.FromUser appropriately.
-func (o *User) AddFromUserChats(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Chat) error {
+// Appends related to o.R.UserID2Chats.
+// Sets related.R.UserID2User appropriately.
+func (o *User) AddUserID2Chats(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Chat) error {
 	var err error
 	for _, rel := range related {
 		if insert {
-			rel.FromUserID = o.UserID
+			rel.UserID2 = o.UserID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
 		} else {
 			updateQuery := fmt.Sprintf(
 				"UPDATE \"chats\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"from_user_id"}),
+				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id_2"}),
 				strmangle.WhereClause("\"", "\"", 2, chatPrimaryKeyColumns),
 			)
 			values := []interface{}{o.UserID, rel.ID}
@@ -1019,46 +1019,46 @@ func (o *User) AddFromUserChats(ctx context.Context, exec boil.ContextExecutor, 
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			rel.FromUserID = o.UserID
+			rel.UserID2 = o.UserID
 		}
 	}
 
 	if o.R == nil {
 		o.R = &userR{
-			FromUserChats: related,
+			UserID2Chats: related,
 		}
 	} else {
-		o.R.FromUserChats = append(o.R.FromUserChats, related...)
+		o.R.UserID2Chats = append(o.R.UserID2Chats, related...)
 	}
 
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &chatR{
-				FromUser: o,
+				UserID2User: o,
 			}
 		} else {
-			rel.R.FromUser = o
+			rel.R.UserID2User = o
 		}
 	}
 	return nil
 }
 
-// AddToUserChats adds the given related objects to the existing relationships
+// AddUserID1Chats adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
-// Appends related to o.R.ToUserChats.
-// Sets related.R.ToUser appropriately.
-func (o *User) AddToUserChats(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Chat) error {
+// Appends related to o.R.UserID1Chats.
+// Sets related.R.UserID1User appropriately.
+func (o *User) AddUserID1Chats(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Chat) error {
 	var err error
 	for _, rel := range related {
 		if insert {
-			rel.ToUserID = o.UserID
+			rel.UserID1 = o.UserID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
 		} else {
 			updateQuery := fmt.Sprintf(
 				"UPDATE \"chats\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"to_user_id"}),
+				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id_1"}),
 				strmangle.WhereClause("\"", "\"", 2, chatPrimaryKeyColumns),
 			)
 			values := []interface{}{o.UserID, rel.ID}
@@ -1072,25 +1072,25 @@ func (o *User) AddToUserChats(ctx context.Context, exec boil.ContextExecutor, in
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			rel.ToUserID = o.UserID
+			rel.UserID1 = o.UserID
 		}
 	}
 
 	if o.R == nil {
 		o.R = &userR{
-			ToUserChats: related,
+			UserID1Chats: related,
 		}
 	} else {
-		o.R.ToUserChats = append(o.R.ToUserChats, related...)
+		o.R.UserID1Chats = append(o.R.UserID1Chats, related...)
 	}
 
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &chatR{
-				ToUser: o,
+				UserID1User: o,
 			}
 		} else {
-			rel.R.ToUser = o
+			rel.R.UserID1User = o
 		}
 	}
 	return nil
