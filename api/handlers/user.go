@@ -121,7 +121,8 @@ func (h *UserHandler) createUser(c fiber.Ctx) error {
 	fmt.Printf("Request received : %v", createUserRequest)
 	fmt.Println("Making request to the gRPC User service")
 	response, err := h.grpcUserClient.CreateUser(c.Context(), createUserRequest)
-	fmt.Println("Response from the gRPC User service")
+	fmt.Println("Response from the gRPC User service %v", response)
+	fmt.Println("Error from the gRPC User service %v", err)
 	if err != nil {
 		grpcError := status.Convert(err)
 		return jsonUtils.WriteJson(fiber.StatusInternalServerError, nil, &jsonUtils.ApiError{

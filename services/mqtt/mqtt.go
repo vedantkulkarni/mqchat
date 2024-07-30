@@ -15,6 +15,7 @@ import (
 type MQTTService struct {
 	Server         *mqtt.Server
 	ChatGRPCClient *proto.ChatServiceClient
+	ChatGRPCMessagesClient *proto.ChatService_GetMessagesClient
 }
 
 func NewMQTTService() *MQTTService {
@@ -33,7 +34,7 @@ func NewMQTTService() *MQTTService {
 		InlineClient: false,
 	})
 	_ = mqttServer.AddHook(new(auth.AllowHook), nil)
-	_ = mqttServer.AddHook(new(controller.ChatMQTTHook), &controller.ChatHookOptions{Server: mqttServer, ChatGRPCClient: &chatClient})
+	_ = mqttServer.AddHook(new(ChatMQTTHook), &ChatHookOptions{Server: mqttServer, ChatGRPCClient: &chatClient, ChatGRPCMessagesClient: nil})
 	return &MQTTService{
 		Server:         mqttServer,
 		ChatGRPCClient: &chatClient,
@@ -46,8 +47,8 @@ func (m *MQTTService) Start(port string) {
 	listener := listeners.NewTCP(listeners.Config{Type: "tcp", Address: fmt.Sprintf(":%s", port)})
 
 	// defer func(listner *listeners.TCP) {
-	// 	err :=
-	// 	if err != nil {
+	// 	err : listener.Close()
+	// 	err != nil {
 	// 		fmt.Println("Error occurred while closing the listener")
 	// 	}
 	// }(listener)

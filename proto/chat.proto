@@ -38,4 +38,6 @@ message GetMessagesResponse {
 service ChatService {
     rpc SendMessage(SendMessageRequest) returns (SendMessageResponse) {}
     rpc GetMessages(GetMessagesRequest) returns (stream Message) {}
+    
 }
+

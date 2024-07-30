@@ -13,12 +13,13 @@ import (
 
 func NewUserGRPCServer(db *database.DbInterface) (*UserGRPCServer, error) {
 	//This microservice internally connects to the 'connections' microservice
+	host:= env.GetEnvVar("HOST", "host.docker.internal")
 	connectionServicePort := env.GetEnvVarInt("CONNECTION_SERVICE_GRPC_PORT", 2100)
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
 
-	conn, err := grpc.NewClient(fmt.Sprintf("localhost:%v", connectionServicePort), opts...)
+	conn, err := grpc.NewClient(fmt.Sprintf("%v:%v", host, connectionServicePort), opts...)
 	if err != nil {
 		log.Fatalf("Error occurred while connecting to the gRPC server : %v", err)
 		return nil, err
@@ -30,10 +31,10 @@ func NewUserGRPCServer(db *database.DbInterface) (*UserGRPCServer, error) {
 	}, nil
 }
 
-func (u *UserGRPCServer) StartService(port string) error {
-	var block chan struct{}
+func (u *UserGRPCServer) StartService() error {
 	
-	listener, err := net.Listen("tcp", "localhost:"+port)
+	userServicePort := env.GetEnvVarInt("USER_SERVICE_GRPC_PORT", 2000)
+	listener, err := net.Listen("tcp", "localhost:"+userServicePort)
 	if err != nil {
 		log.Panic("user service port err:", err)
 		listener.Close()
@@ -58,8 +59,6 @@ func (u *UserGRPCServer) StartService(port string) error {
 		return err
 	}
 	fmt.Println("gRPC user server started successfully!")
-
-	<-block
 
 	return nil
 }

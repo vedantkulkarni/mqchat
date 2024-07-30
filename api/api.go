@@ -34,7 +34,7 @@ func (a *API) Start() error {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
-	user, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.grpcAddr), opts...)
+	user, err := grpc.NewClient(fmt.Sprintf("localhost:%s", "2000"), opts...)
 	if err != nil {
 		log.Println("Error occurred while connecting to the gRPC server")
 		return err
@@ -46,7 +46,7 @@ func (a *API) Start() error {
 		return err
 	}
 
-	chat, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.chatGrpcAddr), opts...)
+	chat, err := grpc.NewClient(fmt.Sprintf("localhost:%s", "2200"), opts...)
 	if err != nil {
 		log.Println("Error occurred while connecting to the gRPC server")
 		return err

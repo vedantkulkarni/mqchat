@@ -7,6 +7,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/vedantkulkarni/mqchat/database"
+	"github.com/vedantkulkarni/mqchat/pkg/utils"
 	"github.com/vedantkulkarni/mqchat/services/chat/controller"
 )
 
@@ -37,8 +38,10 @@ func main() {
 		return
 	}
 
+	chatServicePort := utils.GetEnvVarInt("CHAT_SERVICE_GRPC_PORT", 8002)
+
 	go func() {
-		err := chatServer.StartService("2200")
+		err := chatServer.StartService(chatServicePort)
 		if err != nil {
 			fmt.Println("Error occurred while starting the gRPC server : Chat")
 		}

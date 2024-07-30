@@ -21,6 +21,7 @@ const (
 type ChatHookOptions struct {
 	Server                    *mqtt.Server
 	ChatGRPCClient            *proto.ChatServiceClient
+	ChatGRPCMessagesClient    *proto.ChatService_GetMessagesClient
 }
 
 type ChatMQTTHook struct {
@@ -83,10 +84,10 @@ func (h *ChatMQTTHook) OnUnsubscribed(cl *mqtt.Client, pk packets.Packet) {
 
 func (h *ChatMQTTHook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Packet, error) {
 
-	if pk.TopicName == utils.ClientMessageTopic+cl.ID {
+	if pk.TopicName == clientMessageTopic+cl.ID {
 		return sendMessage(cl, pk, *h.config.ChatGRPCClient, h.config.Server)
-	} else if pk.TopicName == utils.ClientChatTopic+cl.ID {
-		return getMessages(cl, pk, *h.config.ChatGRPCGetMessagesClient)
+	} else if pk.TopicName == clientChatTopic+cl.ID {
+		return getMessages(cl, pk, *h.config.ChatGRPCClient)
 	}
 
 	return pk, nil
@@ -120,6 +121,8 @@ func sendMessage(cl *mqtt.Client, pk packets.Packet, grpcClient proto.ChatServic
 	userId := fmt.Sprintf("%v", sendMessageRequest.Message.UserId_2)
 	client, check:= server.Clients.Get(userId)
 	if !check || client == nil {
+
+		//TODO : Maintain a queue service like RabbitMQ to store the queued messages instead of not allowing.
 		utils.PublishError(cl, errors.New("oops! User is not connected at the moment"))	
 		return pk, nil
 	}
@@ -130,14 +133,30 @@ func sendMessage(cl *mqtt.Client, pk packets.Packet, grpcClient proto.ChatServic
 
 
 
-func getMessages(cl *mqtt.Client, pk packets.Packet, grpcClient proto.ChatService_GetMessagesClient) (packets.Packet, error) {
+func getMessages(cl *mqtt.Client, pk packets.Packet, grpcClient proto.ChatServiceClient) (packets.Packet, error) {
 
-	response, err:= grpcClient.Recv()
+	stream, err:= grpcClient.GetMessages(context.Background(), &proto.GetMessagesRequest{})
 	if err != nil {
 		utils.PublishError(cl, errors.New("an error occurred while fetching the messages"))
 	}
 
-	utils.PublishMessage(cl, response)
+	// for i := range stream.Recv() {
+	// 	utils.PublishMessage(cl, stream[i])
+	// }
+
+	go func() {
+		for {
+			message, err := stream.Recv()
+			if err != nil {
+				fmt.Println("Error occured while fetching chat messages from db")
+				break
+			}
+			utils.PublishMessage(cl, message)
+			
+		}
+	}()
+
+	// utils.PublishMessage(cl, response)
 
 	return pk, nil
 }

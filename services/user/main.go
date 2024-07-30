@@ -11,7 +11,8 @@ import (
 )
 
 func main() {
-	var blocker chan bool
+
+	var block chan bool  
 
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -30,21 +31,19 @@ func main() {
 		}
 	}(db.DB)
 
-		userServer, err := user.NewUserGRPCServer(db)
+	userServer, err := user.NewUserGRPCServer(db)
 	if err != nil {
 		fmt.Println("Error occurred while creating the gRPC server : User")
 		return
 	}
 	go func() {
-		err := userServer.StartService("2000")
+		err := userServer.StartService()
 		if err != nil {
 			fmt.Println("Error occurred while starting the gRPC server : User")
 		}
 	}()
 
-	fmt.Println("Chat server started successfully!")
-	fmt.Println("Blocking the server")
+	<-block
 
-	<-blocker
 
 }

@@ -7,9 +7,8 @@ import (
 	"github.com/mochi-mqtt/server/v2/packets"
 )
 
-
 func PublishMessage(client *mqtt.Client, payload interface{}) error {
-		
+
 	// Publish a message to the client
 	err := client.WritePacket(packets.Packet{
 		FixedHeader: packets.FixedHeader{
@@ -23,6 +22,7 @@ func PublishMessage(client *mqtt.Client, payload interface{}) error {
 		return err
 	}
 
+	fmt.Println("Message published to client")
 
 	return nil
 }

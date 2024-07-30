@@ -6,6 +6,7 @@ import (
 
 	"github.com/joho/godotenv"
 	api "github.com/vedantkulkarni/mqchat/api"
+	"github.com/vedantkulkarni/mqchat/services/mqtt"
 
 	util "github.com/vedantkulkarni/mqchat/pkg/utils"
 )
@@ -59,8 +60,10 @@ func main() {
 	// 	}
 	// }()
 
-	// mqttServer := mqtt.NewMQTTService()
-	// mqttServer.Start(config.MQTTServicePort)
+	mqttServer := mqtt.NewMQTTService()
+	go func() {
+		mqttServer.Start(config.MQTTServicePort)
+	}()
 
 	// REST API Server
 	apiServer, err := api.NewAPI(config.HttpPort, config.UserServicePort, config.ConnServicePort)
