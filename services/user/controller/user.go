@@ -33,8 +33,9 @@ func NewUserGRPCServer(db *database.DbInterface) (*UserGRPCServer, error) {
 
 func (u *UserGRPCServer) StartService() error {
 	
-	userServicePort := env.GetEnvVarInt("USER_SERVICE_GRPC_PORT", 2000)
-	listener, err := net.Listen("tcp", "localhost:"+userServicePort)
+	host:= env.GetEnvVar("HOST", "host.docker.internal")
+	userServicePort := env.GetEnvVarInt("USER_SERVICE_GRPC_PORT", 8003)
+	listener, err := net.Listen("tcp", fmt.Sprintf("%v:%v", host, userServicePort))
 	if err != nil {
 		log.Panic("user service port err:", err)
 		listener.Close()
@@ -49,16 +50,14 @@ func (u *UserGRPCServer) StartService() error {
 	}(listener)
 
 	g := grpc.NewServer()
-	fmt.Println("Starting gRPC user server")
+	fmt.Println("Starting gRPC user server on port : ", listener.Addr().String())
 
 	proto.RegisterUserGRPCServiceServer(g, u)
 
-	fmt.Println("gRPC user server registered successfully")
 	if err := g.Serve(listener); err != nil {
 		log.Fatalf("Error occured while serving the gRPC server : %v", err)
 		return err
 	}
-	fmt.Println("gRPC user server started successfully!")
 
 	return nil
 }
