@@ -13,13 +13,13 @@ import (
 
 func NewUserGRPCServer(db *database.DbInterface) (*UserGRPCServer, error) {
 	//This microservice internally connects to the 'connections' microservice
-	host:= env.GetEnvVar("HOST", "host.docker.internal")
-	connectionServicePort := env.GetEnvVarInt("CONNECTION_SERVICE_GRPC_PORT", 2100)
+	host := env.GetEnvVar("CONNECTION_SERVICE_GRPC_HOST", "service")
+	connectionPort := env.GetEnvVarInt("CONNECTION_SERVICE_GRPC_PORT", 2100)
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
 
-	conn, err := grpc.NewClient(fmt.Sprintf("%v:%v", host, connectionServicePort), opts...)
+	conn, err := grpc.NewClient(fmt.Sprintf("%v:%v", host, connectionPort), opts...)
 	if err != nil {
 		log.Fatalf("Error occurred while connecting to the gRPC server : %v", err)
 		return nil, err
