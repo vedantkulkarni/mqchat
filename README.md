@@ -71,8 +71,8 @@ This project is a chat system backend implemented in Go, utilizing a microservic
 
 Here are some screenshots demonstrating various features of the chat system:
 
-1. **Get User**:
-   ![Get User](./assets/create_user.png)
+1. **Create User**:
+   ![Create User](./assets/create_user.png)
 
 2. **Get User**:
    ![Get User](./assets/get_user.png)
