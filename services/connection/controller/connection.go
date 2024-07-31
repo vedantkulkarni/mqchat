@@ -9,6 +9,7 @@ import (
 	"github.com/vedantkulkarni/mqchat/database"
 	"github.com/vedantkulkarni/mqchat/gen/models"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
+	"github.com/vedantkulkarni/mqchat/pkg/utils"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"google.golang.org/grpc"
@@ -107,10 +108,14 @@ func NewConnectionGRPCServer(db *database.DbInterface) (*ConnectionGRPCServer, e
 	}, nil
 }
 
-func (c *ConnectionGRPCServer) StartService(port string) error {
+func (c *ConnectionGRPCServer) StartService() error {
 	var block chan struct{}
 	//Listen to gRPC responses
-	listener, err := net.Listen("tcp", "localhost:"+port)
+
+	port := utils.GetEnvVarInt("CONNECTION_SERVICE_GRPC_PORT", 8004)
+	host := utils.GetEnvVar("CONNECTION_SERVICE_GRPC_HOST", "localhost")
+
+	listener, err := net.Listen("tcp", fmt.Sprintf("%v:%v", host, port))
 	if err != nil {
 		fmt.Printf("Error occured while listening to the port %v", err)
 	}
@@ -127,7 +132,6 @@ func (c *ConnectionGRPCServer) StartService(port string) error {
 
 	proto.RegisterConnectionGRPCServiceServer(g, c)
 
-	fmt.Println("gRPC connection server registered successfully on port : %v", listener.Addr().String())
 	if err := g.Serve(listener); err != nil {
 		fmt.Println("Error occurred while serving the gRPC server")
 		return err

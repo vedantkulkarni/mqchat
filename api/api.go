@@ -39,7 +39,6 @@ func (a *API) Start() error {
 		log.Println("Error occurred while connecting to the gRPC server")
 		return err
 	}
-
 	conn, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.connGrpcAddr), opts...)
 	if err != nil {
 		log.Println("Error occurred while connecting to the gRPC server")

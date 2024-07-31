@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
-	"log"
 )
 
 type Database interface {
@@ -19,6 +20,8 @@ type DbInterface struct {
 func NewPostgresDB() (*DbInterface, error) {
 	config := NewDatabaseConfig()
 	var dbUrl = fmt.Sprintf("postgres://%s:%s@%s:%s?sslmode=disable", config.User, config.Password, config.Host, config.Port)
+
+	fmt.Printf("Connecting to database : %v\n", dbUrl)
 
 	pool, err := pgxpool.New(context.Background(), dbUrl)
 	if err != nil {

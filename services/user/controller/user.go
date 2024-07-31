@@ -33,9 +33,10 @@ func NewUserGRPCServer(db *database.DbInterface) (*UserGRPCServer, error) {
 
 func (u *UserGRPCServer) StartService() error {
 	
-	host:= env.GetEnvVar("HOST", "host.docker.internal")
+	// host:= "user-service" 
 	userServicePort := env.GetEnvVarInt("USER_SERVICE_GRPC_PORT", 8003)
-	listener, err := net.Listen("tcp", fmt.Sprintf("%v:%v", host, userServicePort))
+	userServiceHost := env.GetEnvVar("USER_SERVICE_GRPC_HOST", "service")
+	listener, err := net.Listen("tcp", fmt.Sprintf("%v:%v", userServiceHost, userServicePort))
 	if err != nil {
 		log.Panic("user service port err:", err)
 		listener.Close()

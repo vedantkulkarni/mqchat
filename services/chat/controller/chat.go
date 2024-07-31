@@ -78,10 +78,10 @@ func NewChatGRPCServer(db *database.DbInterface) (*ChatGRPCServer, error) {
 	}, nil
 }
 
-func (g *ChatGRPCServer) StartService(port string) error {
+func (g *ChatGRPCServer) StartService(port string, host string) error {
 	var block chan struct{}
 	//Listen to gRPC responses
-	listener, err := net.Listen("tcp", "localhost:"+port)
+	listener, err := net.Listen("tcp", fmt.Sprintf("%v:%v", host, port))
 	if err != nil {
 		fmt.Printf("Error occured while listening to the port %v", err)
 	}

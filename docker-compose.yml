@@ -73,15 +73,16 @@ services:
     environment:
       DEBUG: "True"
 
-  # connection_service:
-  #   build: ./connection_service
-  #   restart: always
-  #   ports:
-  #     - "8004:8004"
-  #   depends_on:
-  #     - db
-  #   environment:
-  #     DEBUG: "True"
+  connection_service:
+    build: ./connection_service
+    restart: always
+    ports:
+      - "2100:8004"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DEBUG: "True"
 
   # mqtt_service:
   #   build: ./mqtt_service

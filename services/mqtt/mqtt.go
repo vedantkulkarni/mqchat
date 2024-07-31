@@ -19,12 +19,13 @@ type MQTTService struct {
 }
 
 func NewMQTTService() *MQTTService {
-	chatPort := utils.GetEnvVarInt("CHAT_SERVICE_GRPC_PORT", 2200)
+	chatPort := utils.GetEnvVarInt("CHAT_SERVICE_GRPC_PORT", 8002)
+	chatHost := utils.GetEnvVar("CHAT_SERVICE_GRPC_HOST", "service")
 	// Create a new MQTT server
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
-	chat, err := grpc.NewClient(fmt.Sprintf("localhost:%s", chatPort), opts...)
+	chat, err := grpc.NewClient(fmt.Sprintf("%v:%s", chatHost, chatPort), opts...)
 	if err != nil {
 		log.Println("Error while listening to mqtt service")
 	}

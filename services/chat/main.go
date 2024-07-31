@@ -39,9 +39,10 @@ func main() {
 	}
 
 	chatServicePort := utils.GetEnvVarInt("CHAT_SERVICE_GRPC_PORT", 8002)
+	chatServiceHost := utils.GetEnvVar("CHAT_SERVICE_GRPC_HOST", "service")
 
 	go func() {
-		err := chatServer.StartService(chatServicePort)
+		err := chatServer.StartService(chatServicePort, chatServiceHost)
 		if err != nil {
 			fmt.Println("Error occurred while starting the gRPC server : Chat")
 		}
