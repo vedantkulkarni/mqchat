@@ -63,6 +63,10 @@ This project is a chat system backend implemented in Go, utilizing a microservic
 - **Makefile**: Contains various commands for building, generating code, and running the project.
 - **README.md**: The documentation file you are currently reading.
 
+## Frameworks Used
+
+![Go](https://img.shields.io/badge/Go-00ADD8?logo=go&logoColor=white&style=for-the-badge)      |       ![gRPC](https://img.shields.io/badge/gRPC-4285F4?logo=grpc&logoColor=white&style=for-the-badge) | ![GoFiber](https://img.shields.io/badge/GoFiber-00ADD8?logo=fiber&logoColor=white&style=for-the-badge) | ![Eclipse Mosquitto](https://img.shields.io/badge/Mosquitto-3C5280?logo=eclipse-mosquitto&logoColor=white&style=for-the-badge) | ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white&style=for-the-badge) | ![Makefile](https://img.shields.io/badge/Makefile-427819?logo=gnu-make&logoColor=white&style=for-the-badge) | ![Postman](https://img.shields.io/badge/Postman-FF6C37?logo=postman&logoColor=white&style=for-the-badge)
+
 ## Screenshots
 
 Here are some screenshots demonstrating various features of the chat system:
