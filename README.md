@@ -45,8 +45,6 @@ This project is a chat system backend implemented in Go, utilizing a microservic
 
 ## Project Structure
 
-- **Makefile**: Contains various commands for building, generating code, and running the project.
-- **README.md**: The documentation file you are currently reading.
 - **api/**: Contains API-related code and definitions.
 - **assets/**: Static files and assets used by the project.
 - **cmd/**: Contains the main entry point for the server and other command-line tools.
@@ -62,6 +60,8 @@ This project is a chat system backend implemented in Go, utilizing a microservic
 - **services/**: Contains the different microservices, each in its own subdirectory.
 - **sqlboiler.toml**: Configuration file for SQLBoiler, an ORM tool for generating Go code from the database schema.
 - **tmp/**: Temporary files and directories used during development and testing.
+- **Makefile**: Contains various commands for building, generating code, and running the project.
+- **README.md**: The documentation file you are currently reading.
 
 ## Screenshots
 
