@@ -74,7 +74,9 @@ services:
       DEBUG: "True"
 
   connection_service:
-    build: ./connection_service
+    build: 
+      context: .
+      dockerfile: services/connection/Dockerfile
     restart: always
     ports:
       - "2100:8004"
