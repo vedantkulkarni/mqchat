@@ -4,7 +4,7 @@ This project is a chat system backend implemented in Go, utilizing a microservic
 
 
 # Architecture
-(./assets/architecture.png)
+![Application Architecture](./assets/architecture.png)
 
 
 ## Setup Instructions
