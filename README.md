@@ -87,13 +87,13 @@ Here are some screenshots demonstrating various features of the chat system:
    ![Receive Message Over MQTT Topic](./assets/recv_message_mqtt.png)
 
 6. **Generate JWT Token**:
-   ![Token based authentication and authorization](./assets/gen_token.png.png)
+   ![Token based authentication and authorization](./assets/gen_token.png)
 
 7. **Validate JWT Token**:
-   ![Protected routes for better security](./assets/jwt_valid.png.png)
+   ![Protected routes for better security](./assets/jwt_valid.png)
 
 8. **JWT Authorization**:
-   ![Role based access control](./assets/jwt_invalid.png.png)
+   ![Role based access control](./assets/jwt_invalid.png)
 
 ## Contributing
 
