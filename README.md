@@ -43,6 +43,10 @@ This project is a chat system backend implemented in Go, utilizing a microservic
     migrate [POSTGRES_URL] up
     ```
 
+ 6. **API CRUD**  [<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://app.getpostman.com/run-collection/19317070-af8aea11-c491-4866-b876-e602b125b420?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D19317070-af8aea11-c491-4866-b876-e602b125b420%26entityType%3Dcollection%26workspaceId%3D99341921-f2c7-4858-884c-0ec2916b109f)
+
+ 7. **Send Message MQTT APIs** [Here](https://www.postman.com/vedant-kulkarni/workspace/my-workspace/collection/669d06a5ac392377cf1cb73a?action=share&creator=19317070)
+
 ## Project Structure
 
 - **api/**: Contains API-related code and definitions.
