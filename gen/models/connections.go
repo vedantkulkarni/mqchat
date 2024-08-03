@@ -23,44 +23,44 @@ import (
 
 // Connection is an object representing the database table.
 type Connection struct {
-	ID      int `boil:"id" json:"id" toml:"id" yaml:"id"`
 	UserID1 int `boil:"user_id_1" json:"user_id_1" toml:"user_id_1" yaml:"user_id_1"`
 	UserID2 int `boil:"user_id_2" json:"user_id_2" toml:"user_id_2" yaml:"user_id_2"`
+	ChatID  int `boil:"chat_id" json:"chat_id" toml:"chat_id" yaml:"chat_id"`
 
 	R *connectionR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L connectionL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var ConnectionColumns = struct {
-	ID      string
 	UserID1 string
 	UserID2 string
+	ChatID  string
 }{
-	ID:      "id",
 	UserID1: "user_id_1",
 	UserID2: "user_id_2",
+	ChatID:  "chat_id",
 }
 
 var ConnectionTableColumns = struct {
-	ID      string
 	UserID1 string
 	UserID2 string
+	ChatID  string
 }{
-	ID:      "connections.id",
 	UserID1: "connections.user_id_1",
 	UserID2: "connections.user_id_2",
+	ChatID:  "connections.chat_id",
 }
 
 // Generated where
 
 var ConnectionWhere = struct {
-	ID      whereHelperint
 	UserID1 whereHelperint
 	UserID2 whereHelperint
+	ChatID  whereHelperint
 }{
-	ID:      whereHelperint{field: "\"connections\".\"id\""},
 	UserID1: whereHelperint{field: "\"connections\".\"user_id_1\""},
 	UserID2: whereHelperint{field: "\"connections\".\"user_id_2\""},
+	ChatID:  whereHelperint{field: "\"connections\".\"chat_id\""},
 }
 
 // ConnectionRels is where relationship names are stored.
@@ -101,10 +101,10 @@ func (r *connectionR) GetUserID2User() *User {
 type connectionL struct{}
 
 var (
-	connectionAllColumns            = []string{"id", "user_id_1", "user_id_2"}
+	connectionAllColumns            = []string{"user_id_1", "user_id_2", "chat_id"}
 	connectionColumnsWithoutDefault = []string{"user_id_1", "user_id_2"}
-	connectionColumnsWithDefault    = []string{"id"}
-	connectionPrimaryKeyColumns     = []string{"id"}
+	connectionColumnsWithDefault    = []string{"chat_id"}
+	connectionPrimaryKeyColumns     = []string{"chat_id"}
 	connectionGeneratedColumns      = []string{}
 )
 
@@ -691,7 +691,7 @@ func (o *Connection) SetUserID1User(ctx context.Context, exec boil.ContextExecut
 		strmangle.SetParamNames("\"", "\"", 1, []string{"user_id_1"}),
 		strmangle.WhereClause("\"", "\"", 2, connectionPrimaryKeyColumns),
 	)
-	values := []interface{}{related.UserID, o.ID}
+	values := []interface{}{related.UserID, o.ChatID}
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -738,7 +738,7 @@ func (o *Connection) SetUserID2User(ctx context.Context, exec boil.ContextExecut
 		strmangle.SetParamNames("\"", "\"", 1, []string{"user_id_2"}),
 		strmangle.WhereClause("\"", "\"", 2, connectionPrimaryKeyColumns),
 	)
-	values := []interface{}{related.UserID, o.ID}
+	values := []interface{}{related.UserID, o.ChatID}
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -782,7 +782,7 @@ func Connections(mods ...qm.QueryMod) connectionQuery {
 
 // FindConnection retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindConnection(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Connection, error) {
+func FindConnection(ctx context.Context, exec boil.ContextExecutor, chatID int, selectCols ...string) (*Connection, error) {
 	connectionObj := &Connection{}
 
 	sel := "*"
@@ -790,10 +790,10 @@ func FindConnection(ctx context.Context, exec boil.ContextExecutor, iD int, sele
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"connections\" where \"id\"=$1", sel,
+		"select %s from \"connections\" where \"chat_id\"=$1", sel,
 	)
 
-	q := queries.Raw(query, iD)
+	q := queries.Raw(query, chatID)
 
 	err := q.Bind(ctx, exec, connectionObj)
 	if err != nil {
@@ -1151,7 +1151,7 @@ func (o *Connection) Delete(ctx context.Context, exec boil.ContextExecutor) (int
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), connectionPrimaryKeyMapping)
-	sql := "DELETE FROM \"connections\" WHERE \"id\"=$1"
+	sql := "DELETE FROM \"connections\" WHERE \"chat_id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1248,7 +1248,7 @@ func (o ConnectionSlice) DeleteAll(ctx context.Context, exec boil.ContextExecuto
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *Connection) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindConnection(ctx, exec, o.ID)
+	ret, err := FindConnection(ctx, exec, o.ChatID)
 	if err != nil {
 		return err
 	}
@@ -1287,16 +1287,16 @@ func (o *ConnectionSlice) ReloadAll(ctx context.Context, exec boil.ContextExecut
 }
 
 // ConnectionExists checks if the Connection row exists.
-func ConnectionExists(ctx context.Context, exec boil.ContextExecutor, iD int) (bool, error) {
+func ConnectionExists(ctx context.Context, exec boil.ContextExecutor, chatID int) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"connections\" where \"id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"connections\" where \"chat_id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
 		fmt.Fprintln(writer, sql)
-		fmt.Fprintln(writer, iD)
+		fmt.Fprintln(writer, chatID)
 	}
-	row := exec.QueryRowContext(ctx, sql, iD)
+	row := exec.QueryRowContext(ctx, sql, chatID)
 
 	err := row.Scan(&exists)
 	if err != nil {
@@ -1308,5 +1308,5 @@ func ConnectionExists(ctx context.Context, exec boil.ContextExecutor, iD int) (b
 
 // Exists checks if the Connection row exists.
 func (o *Connection) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
-	return ConnectionExists(ctx, exec, o.ID)
+	return ConnectionExists(ctx, exec, o.ChatID)
 }

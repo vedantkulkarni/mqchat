@@ -19,7 +19,6 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	UserGRPCService_CreateUser_FullMethodName = "/UserGRPCService/CreateUser"
 	UserGRPCService_UpdateUser_FullMethodName = "/UserGRPCService/UpdateUser"
 	UserGRPCService_DeleteUser_FullMethodName = "/UserGRPCService/DeleteUser"
 	UserGRPCService_GetUser_FullMethodName    = "/UserGRPCService/GetUser"
@@ -30,7 +29,6 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserGRPCServiceClient interface {
-	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
@@ -43,16 +41,6 @@ type userGRPCServiceClient struct {
 
 func NewUserGRPCServiceClient(cc grpc.ClientConnInterface) UserGRPCServiceClient {
 	return &userGRPCServiceClient{cc}
-}
-
-func (c *userGRPCServiceClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateUserResponse)
-	err := c.cc.Invoke(ctx, UserGRPCService_CreateUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *userGRPCServiceClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error) {
@@ -99,7 +87,6 @@ func (c *userGRPCServiceClient) GetUsers(ctx context.Context, in *GetUsersReques
 // All implementations must embed UnimplementedUserGRPCServiceServer
 // for forward compatibility
 type UserGRPCServiceServer interface {
-	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
@@ -111,9 +98,6 @@ type UserGRPCServiceServer interface {
 type UnimplementedUserGRPCServiceServer struct {
 }
 
-func (UnimplementedUserGRPCServiceServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
-}
 func (UnimplementedUserGRPCServiceServer) UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
@@ -137,24 +121,6 @@ type UnsafeUserGRPCServiceServer interface {
 
 func RegisterUserGRPCServiceServer(s grpc.ServiceRegistrar, srv UserGRPCServiceServer) {
 	s.RegisterService(&UserGRPCService_ServiceDesc, srv)
-}
-
-func _UserGRPCService_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateUserRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserGRPCServiceServer).CreateUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserGRPCService_CreateUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserGRPCServiceServer).CreateUser(ctx, req.(*CreateUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _UserGRPCService_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -236,10 +202,6 @@ var UserGRPCService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "UserGRPCService",
 	HandlerType: (*UserGRPCServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateUser",
-			Handler:    _UserGRPCService_CreateUser_Handler,
-		},
 		{
 			MethodName: "UpdateUser",
 			Handler:    _UserGRPCService_UpdateUser_Handler,

@@ -1114,7 +1114,7 @@ func (o *User) AddUserID1Connections(ctx context.Context, exec boil.ContextExecu
 				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id_1"}),
 				strmangle.WhereClause("\"", "\"", 2, connectionPrimaryKeyColumns),
 			)
-			values := []interface{}{o.UserID, rel.ID}
+			values := []interface{}{o.UserID, rel.ChatID}
 
 			if boil.IsDebug(ctx) {
 				writer := boil.DebugWriterFrom(ctx)
@@ -1167,7 +1167,7 @@ func (o *User) AddUserID2Connections(ctx context.Context, exec boil.ContextExecu
 				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id_2"}),
 				strmangle.WhereClause("\"", "\"", 2, connectionPrimaryKeyColumns),
 			)
-			values := []interface{}{o.UserID, rel.ID}
+			values := []interface{}{o.UserID, rel.ChatID}
 
 			if boil.IsDebug(ctx) {
 				writer := boil.DebugWriterFrom(ctx)

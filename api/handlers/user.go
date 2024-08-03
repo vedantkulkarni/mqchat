@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/vedantkulkarni/mqchat/api/middlewares"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
 	jsonUtils "github.com/vedantkulkarni/mqchat/pkg/utils"
 	"google.golang.org/grpc/status"
@@ -26,11 +27,10 @@ func NewUserHandler(client proto.UserGRPCServiceClient, connection proto.Connect
 }
 
 func (h *UserHandler) RegisterUserRoutes(user fiber.Router) error {
-	user.Get("/", h.getUsers)
-	user.Post("/", h.createUser)
-	// user.Get("/:uid", h.getUser)
-	user.Put("/:uid", h.updateUser)
-	user.Delete("/:uid", h.deleteUser)
+	user.Get("/", h.getUsers, api.AuthMiddleware)
+	user.Post("/", h.createUser) // Used for Signup
+	user.Put("/:uid", h.updateUser, api.AuthMiddleware)
+	user.Delete("/:uid", h.deleteUser, api.AuthMiddleware)
 
 	return nil
 }
@@ -109,7 +109,7 @@ func (h *UserHandler) getUser(c fiber.Ctx) error {
 
 func (h *UserHandler) createUser(c fiber.Ctx) error {
 	fmt.Println("Received create user request")
-	createUserRequest := new(proto.CreateUserRequest)
+	createUserRequest := new(proto.UpdateUserRequest)
 	e := c.Bind().Body(&createUserRequest)
 	if e != nil {
 		return jsonUtils.WriteJson(fiber.StatusBadRequest, nil, &jsonUtils.ApiError{
@@ -118,9 +118,11 @@ func (h *UserHandler) createUser(c fiber.Ctx) error {
 			Details: e.Error(),
 		}, c)
 	}
+
+	createUserRequest.IsCreate = true
 	fmt.Printf("Request received : %v", createUserRequest)
 	fmt.Println("Making request to the gRPC User service")
-	response, err := h.grpcUserClient.CreateUser(c.Context(), createUserRequest)
+	response, err := h.grpcUserClient.UpdateUser(c.Context(), createUserRequest)
 	fmt.Println("Response from the gRPC User service %v", response)
 	fmt.Println("Error from the gRPC User service %v", err)
 	if err != nil {
@@ -146,6 +148,8 @@ func (h *UserHandler) updateUser(c fiber.Ctx) error {
 			nil,
 			jsonUtils.BadRequestApiError, c)
 	}
+
+	updateUserRequest.IsCreate = false
 
 	// Call gRPC method to update user
 	_, err := h.grpcUserClient.UpdateUser(c.Context(), updateUserRequest)

@@ -27,9 +27,9 @@ type Chat struct {
 	ID        int       `boil:"id" json:"id" toml:"id" yaml:"id"`
 	UserID1   int       `boil:"user_id_1" json:"user_id_1" toml:"user_id_1" yaml:"user_id_1"`
 	UserID2   int       `boil:"user_id_2" json:"user_id_2" toml:"user_id_2" yaml:"user_id_2"`
+	ChatID    int       `boil:"chat_id" json:"chat_id" toml:"chat_id" yaml:"chat_id"`
 	Message   string    `boil:"message" json:"message" toml:"message" yaml:"message"`
 	CreatedAt null.Time `boil:"created_at" json:"created_at,omitempty" toml:"created_at" yaml:"created_at,omitempty"`
-	ChatID    string    `boil:"chat_id" json:"chat_id" toml:"chat_id" yaml:"chat_id"`
 
 	R *chatR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L chatL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -39,32 +39,32 @@ var ChatColumns = struct {
 	ID        string
 	UserID1   string
 	UserID2   string
+	ChatID    string
 	Message   string
 	CreatedAt string
-	ChatID    string
 }{
 	ID:        "id",
 	UserID1:   "user_id_1",
 	UserID2:   "user_id_2",
+	ChatID:    "chat_id",
 	Message:   "message",
 	CreatedAt: "created_at",
-	ChatID:    "chat_id",
 }
 
 var ChatTableColumns = struct {
 	ID        string
 	UserID1   string
 	UserID2   string
+	ChatID    string
 	Message   string
 	CreatedAt string
-	ChatID    string
 }{
 	ID:        "chats.id",
 	UserID1:   "chats.user_id_1",
 	UserID2:   "chats.user_id_2",
+	ChatID:    "chats.chat_id",
 	Message:   "chats.message",
 	CreatedAt: "chats.created_at",
-	ChatID:    "chats.chat_id",
 }
 
 // Generated where
@@ -147,16 +147,16 @@ var ChatWhere = struct {
 	ID        whereHelperint
 	UserID1   whereHelperint
 	UserID2   whereHelperint
+	ChatID    whereHelperint
 	Message   whereHelperstring
 	CreatedAt whereHelpernull_Time
-	ChatID    whereHelperstring
 }{
 	ID:        whereHelperint{field: "\"chats\".\"id\""},
 	UserID1:   whereHelperint{field: "\"chats\".\"user_id_1\""},
 	UserID2:   whereHelperint{field: "\"chats\".\"user_id_2\""},
+	ChatID:    whereHelperint{field: "\"chats\".\"chat_id\""},
 	Message:   whereHelperstring{field: "\"chats\".\"message\""},
 	CreatedAt: whereHelpernull_Time{field: "\"chats\".\"created_at\""},
-	ChatID:    whereHelperstring{field: "\"chats\".\"chat_id\""},
 }
 
 // ChatRels is where relationship names are stored.
@@ -197,8 +197,8 @@ func (r *chatR) GetUserID1User() *User {
 type chatL struct{}
 
 var (
-	chatAllColumns            = []string{"id", "user_id_1", "user_id_2", "message", "created_at", "chat_id"}
-	chatColumnsWithoutDefault = []string{"user_id_1", "user_id_2", "message", "chat_id"}
+	chatAllColumns            = []string{"id", "user_id_1", "user_id_2", "chat_id", "message", "created_at"}
+	chatColumnsWithoutDefault = []string{"user_id_1", "user_id_2", "chat_id", "message"}
 	chatColumnsWithDefault    = []string{"id", "created_at"}
 	chatPrimaryKeyColumns     = []string{"id"}
 	chatGeneratedColumns      = []string{}

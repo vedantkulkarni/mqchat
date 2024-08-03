@@ -8,24 +8,23 @@ import (
 	"github.com/mochi-mqtt/server/v2/hooks/auth"
 	"github.com/mochi-mqtt/server/v2/listeners"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
-	"github.com/vedantkulkarni/mqchat/pkg/utils"
 	"google.golang.org/grpc"
 )
 
 type MQTTService struct {
-	Server         *mqtt.Server
-	ChatGRPCClient *proto.ChatServiceClient
+	Server                 *mqtt.Server
+	ChatGRPCClient         *proto.ChatServiceClient
 	ChatGRPCMessagesClient *proto.ChatService_GetMessagesClient
 }
 
 func NewMQTTService() *MQTTService {
-	chatPort := utils.GetEnvVarInt("CHAT_SERVICE_GRPC_PORT", 8002)
-	chatHost := utils.GetEnvVar("CHAT_SERVICE_GRPC_HOST", "service")
+	// chatPort := utils.GetEnvVarInt("CHAT_SERVICE_GRPC_PORT", 8002)
+	// chatHost := utils.GetEnvVar("CHAT_SERVICE_GRPC_HOST", "service")
 	// Create a new MQTT server
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
-	chat, err := grpc.NewClient(fmt.Sprintf("%v:%s", chatHost, chatPort), opts...)
+	chat, err := grpc.NewClient(fmt.Sprintf("%v:%s", "localhost", "2200"), opts...)
 	if err != nil {
 		log.Println("Error while listening to mqtt service")
 	}

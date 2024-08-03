@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS connections;
 CREATE TABLE connections (
     user_id_1 INT NOT NULL,
     user_id_2 INT NOT NULL,
-    PRIMARY KEY (user_id_1, user_id_2),
+    chat_id SERIAL PRIMARY KEY,
     FOREIGN KEY (user_id_1) REFERENCES users (user_id),
     FOREIGN KEY (user_id_2) REFERENCES users (user_id)
 );

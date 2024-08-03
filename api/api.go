@@ -12,8 +12,8 @@ import (
 )
 
 type API struct {
-	addr     string
-	grpcAddr string
+	addr         string
+	grpcAddr     string
 	connGrpcAddr string
 	chatGrpcAddr string
 }
@@ -21,8 +21,8 @@ type API struct {
 func NewAPI(addr string, grpcAddr string, connGrpcAddr string) (*API, error) {
 
 	return &API{
-		addr:     addr,
-		grpcAddr: grpcAddr,
+		addr:         addr,
+		grpcAddr:     grpcAddr,
 		connGrpcAddr: connGrpcAddr,
 	}, nil
 }
@@ -49,7 +49,7 @@ func (a *API) Start() error {
 	if err != nil {
 		log.Println("Error occurred while connecting to the gRPC server")
 		return err
-	}	
+	}
 
 	app := fiber.New()
 	api := app.Group("/api")
@@ -83,8 +83,7 @@ func (a *API) Start() error {
 	}
 	fmt.Println("Chat routes registered successfully")
 
-	handlers.RegisterAuthRoutes(auth)
-	// handlers.RegisterChatRoutes(chat)
+	handlers.NewAuthHandler(&userClient).RegisterAuthRoutes(auth)
 	handlers.RegisterSessionRoutes(session)
 	err = app.Listen(fmt.Sprintf(":%s", a.addr))
 	if err != nil {

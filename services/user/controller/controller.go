@@ -14,8 +14,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-
-
 type UserGRPCServer struct { // Depends on DB and ConnectionGRPCServiceClient
 	proto.UnimplementedUserGRPCServiceServer
 	ConnGrpcClient proto.ConnectionGRPCServiceClient
@@ -23,39 +21,21 @@ type UserGRPCServer struct { // Depends on DB and ConnectionGRPCServiceClient
 	DB *sql.DB
 }
 
-func (u *UserGRPCServer) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
-	fmt.Println("Handled by CreateUser in UserService")
-	user := &models.User{
-		UserName:  req.Username,
-		UserEmail: req.Email,
-	}
-
-	err := user.Insert(ctx, u.DB, boil.Infer())
-
-	if err != nil {
-		fmt.Printf("Error occurred while creating user : %v", err)
-		pgErr := database.ParsePGXErrorUser(err)
-		return nil, status.Error(codes.Internal, pgErr)
-	}
-
-	createUserResponse := &proto.User{
-		Id:       int64((user.UserID)),
-		Username: user.UserName,
-		Email:    user.UserEmail,
-	}
-
-	fmt.Printf("User created successfully : %v", createUserResponse)
-
-	return &proto.CreateUserResponse{
-		User: createUserResponse,
-	}, nil
-}
 
 func (u *UserGRPCServer) GetUser(ctx context.Context, req *proto.GetUserRequest) (*proto.GetUserResponse, error) {
 
 	fmt.Println("Handled by GetUser")
 
-	user, err := models.Users(qm.Where("user_id=?", req.Id)).One(ctx, u.DB)
+	var user *models.User
+	var err error
+	if req.By == "user_id" {
+
+		user, err = models.Users(qm.Where("user_id=?", req.Id)).One(ctx, u.DB)
+	} else if req.By == "user_email" {
+
+		user, err = models.Users(qm.Where("user_email=?", req.Email)).One(ctx, u.DB)
+	}
+
 	if err != nil {
 		return nil, status.Error(codes.NotFound, "User not found")
 	}
@@ -124,5 +104,75 @@ func (u *UserGRPCServer) DeleteUser(ctx context.Context, req *proto.DeleteUserRe
 }
 
 func (u *UserGRPCServer) UpdateUser(ctx context.Context, req *proto.UpdateUserRequest) (*proto.UpdateUserResponse, error) {
+
+	if(req.IsCreate) {
+		return createUser(ctx, u, req)
+	} else {
+		return updateUser(ctx, u, req)
+	}
+
 	return nil, nil
+}
+
+
+// Helper functions
+
+func createUser(ctx context.Context, u *UserGRPCServer, req *proto.UpdateUserRequest) (*proto.UpdateUserResponse, error) {
+	fmt.Println("Handled by CreateUser in UserService")
+	user := &models.User{
+		UserName:  req.User.Username,
+		UserEmail: req.User.Email,
+	}
+
+	err := user.Insert(ctx, u.DB, boil.Infer())
+
+	if err != nil {
+		fmt.Printf("Error occurred while creating user : %v", err)
+		pgErr := database.ParsePGXErrorUser(err)
+		return nil, status.Error(codes.Internal, pgErr)
+	}
+
+	createUserResponse := &proto.User{
+		Id:       int64((user.UserID)),
+		Username: user.UserName,
+		Email:    user.UserEmail,
+	}
+
+	fmt.Printf("User created successfully : %v", createUserResponse)
+
+	return &proto.UpdateUserResponse{
+		User: createUserResponse,
+	}, nil
+}
+
+
+func updateUser(ctx context.Context, u *UserGRPCServer, req *proto.UpdateUserRequest) (*proto.UpdateUserResponse, error) {
+	fmt.Println("Handled by UpdateUser in UserService")
+	user := &models.User{
+		UserName:  req.User.Username,
+		UserEmail: req.User.Email,
+	}
+
+	_, err := models.Users(qm.Where("user_id=?", req.User.Id)).UpdateAll(ctx, u.DB, models.M{
+		"user_name":  user.UserName,
+		"user_email": user.UserEmail,
+	})
+
+	if err != nil {
+		fmt.Printf("Error occurred while updating user : %v", err)
+		pgErr := database.ParsePGXErrorUser(err)
+		return nil, status.Error(codes.Internal, pgErr)
+	}
+
+	updateUserResponse := &proto.User{
+		Id:       req.User.Id,
+		Username: user.UserName,
+		Email:    user.UserEmail,
+	}
+
+	fmt.Printf("User updated successfully : %v", updateUserResponse)
+
+	return &proto.UpdateUserResponse{
+		User: updateUserResponse,
+	}, nil
 }

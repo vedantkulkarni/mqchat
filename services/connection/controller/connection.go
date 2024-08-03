@@ -36,14 +36,14 @@ func (c *ConnectionGRPCServer) CreateConnection(ctx context.Context, req *proto.
 	}
 
 	response := &proto.CreateConnectionResponse{}
-	response.ConnId = int64(connection.ID)
+	response.ConnId = int64(connection.ChatID)
 
 	return response, nil
 }
 
 func (c *ConnectionGRPCServer) GetConnection(ctx context.Context, req *proto.GetConnectionRequest) (*proto.GetConnectionResponse, error) {
 	connection := &models.Connection{
-		ID:      int(req.ConnId),
+		ChatID:  int(req.ConnId),
 		UserID1: int(req.UserId_1),
 		UserID2: int(req.UserId_2),
 	}
@@ -64,7 +64,7 @@ func (c *ConnectionGRPCServer) GetConnection(ctx context.Context, req *proto.Get
 		Connection: &proto.Connection{
 			UserId_1: int64(conn.UserID1),
 			UserId_2: int64(conn.UserID2),
-			Id:       int64(conn.ID),
+			Id:       int64(conn.ChatID),
 		},
 	}
 	return response, nil
@@ -89,7 +89,7 @@ func (c *ConnectionGRPCServer) GetConnections(ctx context.Context, req *proto.Ge
 
 	for _, conn := range conn {
 		connections = append(connections, &proto.Connection{
-			Id:       int64(conn.ID),
+			Id:       int64(conn.ChatID),
 			UserId_1: int64(conn.UserID1),
 			UserId_2: int64(conn.UserID2),
 		})
@@ -137,7 +137,7 @@ func (c *ConnectionGRPCServer) StartService() error {
 		return err
 	}
 
-	<- block
+	<-block
 	return nil
 
 }

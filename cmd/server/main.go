@@ -47,19 +47,9 @@ func main() {
 	//Get configurations
 	config := &ServerConfig{}
 	config = getServerConfig(config)
-	// connServer, err := connection.NewConnectionGRPCServer(db)
-	// if err != nil {
-	// 	fmt.Println("Error occurred while creating the gRPC server : Connection")
-	// 	return
-	// }
-
-	// go func() {
-	// 	err := connServer.StartService(config.ConnServicePort)
-	// 	if err != nil {
-	// 		fmt.Println("Error occurred while starting the gRPC server : Connection")
-	// 	}
-	// }()
-
+	
+	
+	// MQTT Server
 	mqttServer := mqtt.NewMQTTService()
 	go func() {
 		mqttServer.Start(config.MQTTServicePort)
