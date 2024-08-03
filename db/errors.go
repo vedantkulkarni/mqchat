@@ -25,7 +25,7 @@ func ParsePGXErrorUser(err error) string {
 		return "Invalid user id"
 	}
 	if strings.Contains(err.Error(), "violates check constraint") {
-		return "Invalid email"
+		return "Invalid Password"
 	}
 	if strings.Contains(err.Error(), "violates check constraint") {
 		return "Invalid username"

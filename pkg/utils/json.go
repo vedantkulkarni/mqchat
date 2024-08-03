@@ -22,6 +22,12 @@ var BadRequestApiError *ApiError = &ApiError{
 	Details: "Bad Request",
 }
 
+var InternalServerApiError *ApiError = &ApiError{
+	Code: fiber.ErrInternalServerError.Code,
+	Message: "Internal Server Error",
+	Details: "Internal Server Error",
+}
+
 
 func WriteJson(code int, data interface{}, err *ApiError, c fiber.Ctx) error {
 	apiResponse := &ApiResponse{}
@@ -42,3 +48,5 @@ func WriteJson(code int, data interface{}, err *ApiError, c fiber.Ctx) error {
 	)
 
 }
+
+

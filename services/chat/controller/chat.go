@@ -7,7 +7,7 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/vedantkulkarni/mqchat/database"
+	"github.com/vedantkulkarni/mqchat/db"
 	"github.com/vedantkulkarni/mqchat/gen/models"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -23,15 +23,15 @@ type ChatGRPCServer struct {
 
 func (g *ChatGRPCServer) SendMessage(ctx context.Context, req *proto.SendMessageRequest) (*proto.SendMessageResponse, error) {
 	//Store chat message in db
-	chatId, err:= strconv.Atoi(req.Message.ChatId)
+
 	response := &models.Chat{
 		UserID1: int(req.Message.UserId_2),
 		UserID2: int(req.Message.UserId_1),
 		Message: req.Message.Content,
-		ChatID:  chatId,
+		ChatID:  int(req.Message.RoomId),
 	}
 
-	err = response.Insert(ctx, g.DB, boil.Infer())
+	err := response.Insert(ctx, g.DB, boil.Infer())
 	if err != nil {
 		fmt.Printf("Error occured while inserting chat message in db : %v \n", err)
 		return nil, err
@@ -49,7 +49,7 @@ func (g *ChatGRPCServer) GetMessages(req *proto.GetMessagesRequest, stream proto
 
 	//Get chat messages from db
 	//TODO: Implement pagination
-	chatId, err:= strconv.Atoi(req.ChatId)
+	chatId, err := strconv.Atoi(req.ChatId)
 	chatMessages, err := models.Chats(qm.Where("chat_id=?", chatId), qm.Limit(50), qm.Offset(0)).All(context.Background(), g.DB)
 	if err != nil {
 		fmt.Println("Error occured while fetching chat messages from db", err)
@@ -62,7 +62,7 @@ func (g *ChatGRPCServer) GetMessages(req *proto.GetMessagesRequest, stream proto
 		message := &proto.Message{
 			UserId_1:  int64(chatMessage.UserID1),
 			UserId_2:  int64(chatMessage.UserID2),
-			ChatId:    strconv.Itoa(chatMessage.ChatID),
+			RoomId:    int64(chatMessage.ChatID),
 			Content:   chatMessage.Message,
 			CreatedAt: timestamppb.New(chatMessage.CreatedAt.Time),
 		}
@@ -110,5 +110,3 @@ func (g *ChatGRPCServer) StartService(port string, host string) error {
 	<-block
 	return nil
 }
-
-

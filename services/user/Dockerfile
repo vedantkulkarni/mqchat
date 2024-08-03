@@ -10,7 +10,7 @@ COPY services/user/ ./services/user/
 
 COPY gen/ ./gen/
 
-COPY database/ ./database/
+COPY db/ ./db/
 
 COPY pkg/ ./pkg/
 

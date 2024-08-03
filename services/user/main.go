@@ -6,13 +6,13 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/vedantkulkarni/mqchat/database"
+	database "github.com/vedantkulkarni/mqchat/db"
 	user "github.com/vedantkulkarni/mqchat/services/user/controller"
 )
 
 func main() {
 
-	var block chan bool  
+	var block chan bool
 
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -44,6 +44,5 @@ func main() {
 	}()
 
 	<-block
-
 
 }

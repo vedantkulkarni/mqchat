@@ -5,21 +5,21 @@ import (
 	"log"
 	"net"
 
-	"github.com/vedantkulkarni/mqchat/database"
+	database "github.com/vedantkulkarni/mqchat/db"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
 	env "github.com/vedantkulkarni/mqchat/pkg/utils"
 	"google.golang.org/grpc"
 )
 
 func NewUserGRPCServer(db *database.DbInterface) (*UserGRPCServer, error) {
-	//This microservice internally connects to the 'connections' microservice
-	host := env.GetEnvVar("CONNECTION_SERVICE_GRPC_HOST", "service")
-	connectionPort := env.GetEnvVarInt("CONNECTION_SERVICE_GRPC_PORT", 2100)
+	//This microservice internally connects to the 'ROOMs' microservice
+	host := env.GetEnvVar("ROOMS_SERVICE_GRPC_HOST", "service")
+	roomConnPort := env.GetEnvVarInt("ROOMS_SERVICE_GRPC_PORT", 2100)
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
 
-	conn, err := grpc.NewClient(fmt.Sprintf("%v:%v", host, connectionPort), opts...)
+	roomConn, err := grpc.NewClient(fmt.Sprintf("%v:%v", host, roomConnPort), opts...)
 	if err != nil {
 		log.Fatalf("Error occurred while connecting to the gRPC server : %v", err)
 		return nil, err
@@ -27,13 +27,13 @@ func NewUserGRPCServer(db *database.DbInterface) (*UserGRPCServer, error) {
 
 	return &UserGRPCServer{
 		DB:             db.DB,
-		ConnGrpcClient: proto.NewConnectionGRPCServiceClient(conn),
+		RoomGRPCClient: proto.NewRoomGRPCServiceClient(roomConn),
 	}, nil
 }
 
 func (u *UserGRPCServer) StartService() error {
-	
-	// host:= "user-service" 
+
+	// host:= "user-service"
 	userServicePort := env.GetEnvVarInt("USER_SERVICE_GRPC_PORT", 8003)
 	userServiceHost := env.GetEnvVar("USER_SERVICE_GRPC_HOST", "service")
 	listener, err := net.Listen("tcp", fmt.Sprintf("%v:%v", userServiceHost, userServicePort))

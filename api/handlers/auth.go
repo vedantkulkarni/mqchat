@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/gofiber/fiber/v3"
 	middleware "github.com/vedantkulkarni/mqchat/api/middlewares"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
 	"github.com/vedantkulkarni/mqchat/pkg/utils"
+	"google.golang.org/grpc/status"
 )
 
 type AuthHandler struct {
@@ -42,17 +44,32 @@ func (a *AuthHandler) login(c fiber.Ctx) error {
 		})
 	}
 
+	//Check if user exists
 	user, err := (*a.userService).GetUser(c.Context(), &proto.GetUserRequest{
-		By:    "user_email",
+		By:    "email",
 		Email: request.Email,
 	})
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": err.Error(),
-		})
+		errStatus, ok := status.FromError(err)
+		if !ok {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
+
+		fiberStatus := utils.CheckGRPCError(*errStatus)
+
+		return utils.WriteJson(fiberStatus.Code, nil, &utils.ApiError{
+			Code:    fiberStatus.Code,
+			Message: fiberStatus.Message,
+			Details: fiberStatus.Message,
+		}, c)
 
 	}
+
+	//print both passwords
+	fmt.Printf("User Password: %v\nRequest Password: %v\n", user.User.Password, request.Password)
 
 	if user.User.Password != request.Password {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -63,16 +80,15 @@ func (a *AuthHandler) login(c fiber.Ctx) error {
 	token, err := middleware.GenerateToken(strconv.Itoa(int(user.User.Id)))
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": err.Error(),
-		})
+		return utils.WriteJson(fiber.StatusInternalServerError, nil, utils.InternalServerApiError, c)
+
 	}
 
 	utils.WriteJson(
 		fiber.StatusOK,
 		fiber.Map{
 			"token": token,
-		},
+		},	
 		nil,
 		c,
 	)

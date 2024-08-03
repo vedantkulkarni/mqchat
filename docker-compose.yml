@@ -29,7 +29,7 @@ services:
   #     - auth_service
   #     - chat_service
   #     - user_service
-  #     - connection_service
+  #     - room_service
   #     - mqtt_service
   #   environment:
   #     DEBUG: "True"
@@ -73,10 +73,10 @@ services:
     environment:
       DEBUG: "True"
 
-  connection_service:
+  room_service:
     build: 
       context: .
-      dockerfile: services/connection/Dockerfile
+      dockerfile: services/rooms/Dockerfile
     restart: always
     ports:
       - "2100:8004"

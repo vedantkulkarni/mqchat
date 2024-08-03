@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/vedantkulkarni/mqchat/database"
+	"github.com/vedantkulkarni/mqchat/db"
 	"github.com/vedantkulkarni/mqchat/pkg/utils"
 	"github.com/vedantkulkarni/mqchat/services/chat/controller"
 )

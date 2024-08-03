@@ -12,40 +12,40 @@ import (
 )
 
 type API struct {
-	addr         string
-	grpcAddr     string
-	connGrpcAddr string
+	httpAddr     string
+	userGrpcAddr string
+	roomGrpcAddr string
 	chatGrpcAddr string
 }
 
-func NewAPI(addr string, grpcAddr string, connGrpcAddr string) (*API, error) {
+func NewAPI(httpAddr string, userAddr string, roomAddr string, chatAddr string) (*API, error) {
 
 	return &API{
-		addr:         addr,
-		grpcAddr:     grpcAddr,
-		connGrpcAddr: connGrpcAddr,
+		httpAddr:     httpAddr,
+		userGrpcAddr: userAddr,
+		roomGrpcAddr: roomAddr,
+		chatGrpcAddr: chatAddr,
 	}, nil
 }
 
 func (a *API) Start() error {
 
-	//Connect to the gRPC server
-	// conn, err :
+	
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
-	user, err := grpc.NewClient(fmt.Sprintf("localhost:%s", "2000"), opts...)
+	user, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.userGrpcAddr), opts...)
 	if err != nil {
 		log.Println("Error occurred while connecting to the gRPC server")
 		return err
 	}
-	conn, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.connGrpcAddr), opts...)
+	room, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.roomGrpcAddr), opts...)
 	if err != nil {
 		log.Println("Error occurred while connecting to the gRPC server")
 		return err
 	}
 
-	chat, err := grpc.NewClient(fmt.Sprintf("localhost:%s", "2200"), opts...)
+	chat, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.chatGrpcAddr), opts...)
 	if err != nil {
 		log.Println("Error occurred while connecting to the gRPC server")
 		return err
@@ -64,8 +64,8 @@ func (a *API) Start() error {
 
 	// User Routes
 	userClient := proto.NewUserGRPCServiceClient(user)
-	connClient := proto.NewConnectionGRPCServiceClient(conn)
-	userHandler := handlers.NewUserHandler(userClient, connClient)
+	roomClient := proto.NewRoomGRPCServiceClient(room)
+	userHandler := handlers.NewUserHandler(userClient, roomClient)
 	err = userHandler.RegisterUserRoutes(userRoutes)
 	if err != nil {
 		fmt.Println("Error occured while registering the user routes")
@@ -85,9 +85,9 @@ func (a *API) Start() error {
 
 	handlers.NewAuthHandler(&userClient).RegisterAuthRoutes(auth)
 	handlers.RegisterSessionRoutes(session)
-	err = app.Listen(fmt.Sprintf(":%s", a.addr))
+	err = app.Listen(fmt.Sprintf(":%s", a.httpAddr))
 	if err != nil {
-		log.Fatalf("Error occurred while listening to port %v :  %v", a.addr, err)
+		log.Fatalf("Error occurred while listening to port %v :  %v", a.httpAddr, err)
 	}
 
 	return nil

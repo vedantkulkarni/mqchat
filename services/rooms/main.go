@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/vedantkulkarni/mqchat/database"
-	connection "github.com/vedantkulkarni/mqchat/services/connection/controller"
+	"github.com/vedantkulkarni/mqchat/db"
+	rooms "github.com/vedantkulkarni/mqchat/services/rooms/controller"
 )
 
 func main() {
@@ -31,13 +31,13 @@ func main() {
 		}
 	}(db.DB)
 
-	connectionServer, err := connection.NewConnectionGRPCServer(db)
+	roomService, err := rooms.NewRoomsGRPCServer(db)
 	if err != nil {
 		fmt.Println("Error occurred while creating the gRPC server : User")
 		return
 	}
 	go func() {
-		err := connectionServer.StartService()
+		err := roomService.StartService()
 		if err != nil {
 			fmt.Println("Error occurred while starting the gRPC server : User")
 		}

@@ -1,4 +1,4 @@
-gen : genUser genChat genConnection
+gen : genUser genChat genRoom
 
 genUser: ./proto/user.proto
 	protoc --go_out=./gen/ \
@@ -14,11 +14,11 @@ genChat: ./proto/chat.proto
 	--go-grpc_opt=paths=source_relative \
 	./proto/chat.proto
 
-genConnection: ./proto/connection.proto
+genRoom: ./proto/room.proto
 	protoc --go_out=./gen/ \
 	--go_opt=paths=source_relative \
 	--go-grpc_out=./gen/  \
 	--go-grpc_opt=paths=source_relative \
-	./proto/connection.proto
+	./proto/room.proto
 run:
 	go run ./cmd/server/main.go

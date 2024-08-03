@@ -3,7 +3,7 @@
     <option name="myName" value="Project Default" />
     <inspection_tool class="GoDfaErrorMayBeNotNil" enabled="true" level="WARNING" enabled_by_default="true">
       <functions>
-        <function importPath="github.com/vedantkulkarni/mqchat/database" name="NewPostgresDB" />
+        <function importPath="github.com/vedantkulkarni/mqchat/db" name="NewPostgresDB" />
         <function importPath="github.com/vedantkulkarni/mqchat/api" name="NewAPI" />
       </functions>
     </inspection_tool>

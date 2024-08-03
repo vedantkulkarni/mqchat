@@ -21,50 +21,50 @@ import (
 	"github.com/volatiletech/strmangle"
 )
 
-// Connection is an object representing the database table.
-type Connection struct {
+// Room is an object representing the database table.
+type Room struct {
 	UserID1 int `boil:"user_id_1" json:"user_id_1" toml:"user_id_1" yaml:"user_id_1"`
 	UserID2 int `boil:"user_id_2" json:"user_id_2" toml:"user_id_2" yaml:"user_id_2"`
-	ChatID  int `boil:"chat_id" json:"chat_id" toml:"chat_id" yaml:"chat_id"`
+	RoomID  int `boil:"room_id" json:"room_id" toml:"room_id" yaml:"room_id"`
 
-	R *connectionR `boil:"-" json:"-" toml:"-" yaml:"-"`
-	L connectionL  `boil:"-" json:"-" toml:"-" yaml:"-"`
+	R *roomR `boil:"-" json:"-" toml:"-" yaml:"-"`
+	L roomL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
-var ConnectionColumns = struct {
+var RoomColumns = struct {
 	UserID1 string
 	UserID2 string
-	ChatID  string
+	RoomID  string
 }{
 	UserID1: "user_id_1",
 	UserID2: "user_id_2",
-	ChatID:  "chat_id",
+	RoomID:  "room_id",
 }
 
-var ConnectionTableColumns = struct {
+var RoomTableColumns = struct {
 	UserID1 string
 	UserID2 string
-	ChatID  string
+	RoomID  string
 }{
-	UserID1: "connections.user_id_1",
-	UserID2: "connections.user_id_2",
-	ChatID:  "connections.chat_id",
+	UserID1: "rooms.user_id_1",
+	UserID2: "rooms.user_id_2",
+	RoomID:  "rooms.room_id",
 }
 
 // Generated where
 
-var ConnectionWhere = struct {
+var RoomWhere = struct {
 	UserID1 whereHelperint
 	UserID2 whereHelperint
-	ChatID  whereHelperint
+	RoomID  whereHelperint
 }{
-	UserID1: whereHelperint{field: "\"connections\".\"user_id_1\""},
-	UserID2: whereHelperint{field: "\"connections\".\"user_id_2\""},
-	ChatID:  whereHelperint{field: "\"connections\".\"chat_id\""},
+	UserID1: whereHelperint{field: "\"rooms\".\"user_id_1\""},
+	UserID2: whereHelperint{field: "\"rooms\".\"user_id_2\""},
+	RoomID:  whereHelperint{field: "\"rooms\".\"room_id\""},
 }
 
-// ConnectionRels is where relationship names are stored.
-var ConnectionRels = struct {
+// RoomRels is where relationship names are stored.
+var RoomRels = struct {
 	UserID1User string
 	UserID2User string
 }{
@@ -72,65 +72,65 @@ var ConnectionRels = struct {
 	UserID2User: "UserID2User",
 }
 
-// connectionR is where relationships are stored.
-type connectionR struct {
+// roomR is where relationships are stored.
+type roomR struct {
 	UserID1User *User `boil:"UserID1User" json:"UserID1User" toml:"UserID1User" yaml:"UserID1User"`
 	UserID2User *User `boil:"UserID2User" json:"UserID2User" toml:"UserID2User" yaml:"UserID2User"`
 }
 
 // NewStruct creates a new relationship struct
-func (*connectionR) NewStruct() *connectionR {
-	return &connectionR{}
+func (*roomR) NewStruct() *roomR {
+	return &roomR{}
 }
 
-func (r *connectionR) GetUserID1User() *User {
+func (r *roomR) GetUserID1User() *User {
 	if r == nil {
 		return nil
 	}
 	return r.UserID1User
 }
 
-func (r *connectionR) GetUserID2User() *User {
+func (r *roomR) GetUserID2User() *User {
 	if r == nil {
 		return nil
 	}
 	return r.UserID2User
 }
 
-// connectionL is where Load methods for each relationship are stored.
-type connectionL struct{}
+// roomL is where Load methods for each relationship are stored.
+type roomL struct{}
 
 var (
-	connectionAllColumns            = []string{"user_id_1", "user_id_2", "chat_id"}
-	connectionColumnsWithoutDefault = []string{"user_id_1", "user_id_2"}
-	connectionColumnsWithDefault    = []string{"chat_id"}
-	connectionPrimaryKeyColumns     = []string{"chat_id"}
-	connectionGeneratedColumns      = []string{}
+	roomAllColumns            = []string{"user_id_1", "user_id_2", "room_id"}
+	roomColumnsWithoutDefault = []string{"user_id_1", "user_id_2"}
+	roomColumnsWithDefault    = []string{"room_id"}
+	roomPrimaryKeyColumns     = []string{"room_id"}
+	roomGeneratedColumns      = []string{}
 )
 
 type (
-	// ConnectionSlice is an alias for a slice of pointers to Connection.
-	// This should almost always be used instead of []Connection.
-	ConnectionSlice []*Connection
-	// ConnectionHook is the signature for custom Connection hook methods
-	ConnectionHook func(context.Context, boil.ContextExecutor, *Connection) error
+	// RoomSlice is an alias for a slice of pointers to Room.
+	// This should almost always be used instead of []Room.
+	RoomSlice []*Room
+	// RoomHook is the signature for custom Room hook methods
+	RoomHook func(context.Context, boil.ContextExecutor, *Room) error
 
-	connectionQuery struct {
+	roomQuery struct {
 		*queries.Query
 	}
 )
 
 // Cache for insert, update and upsert
 var (
-	connectionType                 = reflect.TypeOf(&Connection{})
-	connectionMapping              = queries.MakeStructMapping(connectionType)
-	connectionPrimaryKeyMapping, _ = queries.BindMapping(connectionType, connectionMapping, connectionPrimaryKeyColumns)
-	connectionInsertCacheMut       sync.RWMutex
-	connectionInsertCache          = make(map[string]insertCache)
-	connectionUpdateCacheMut       sync.RWMutex
-	connectionUpdateCache          = make(map[string]updateCache)
-	connectionUpsertCacheMut       sync.RWMutex
-	connectionUpsertCache          = make(map[string]insertCache)
+	roomType                 = reflect.TypeOf(&Room{})
+	roomMapping              = queries.MakeStructMapping(roomType)
+	roomPrimaryKeyMapping, _ = queries.BindMapping(roomType, roomMapping, roomPrimaryKeyColumns)
+	roomInsertCacheMut       sync.RWMutex
+	roomInsertCache          = make(map[string]insertCache)
+	roomUpdateCacheMut       sync.RWMutex
+	roomUpdateCache          = make(map[string]updateCache)
+	roomUpsertCacheMut       sync.RWMutex
+	roomUpsertCache          = make(map[string]insertCache)
 )
 
 var (
@@ -141,36 +141,36 @@ var (
 	_ = qmhelper.Where
 )
 
-var connectionAfterSelectMu sync.Mutex
-var connectionAfterSelectHooks []ConnectionHook
+var roomAfterSelectMu sync.Mutex
+var roomAfterSelectHooks []RoomHook
 
-var connectionBeforeInsertMu sync.Mutex
-var connectionBeforeInsertHooks []ConnectionHook
-var connectionAfterInsertMu sync.Mutex
-var connectionAfterInsertHooks []ConnectionHook
+var roomBeforeInsertMu sync.Mutex
+var roomBeforeInsertHooks []RoomHook
+var roomAfterInsertMu sync.Mutex
+var roomAfterInsertHooks []RoomHook
 
-var connectionBeforeUpdateMu sync.Mutex
-var connectionBeforeUpdateHooks []ConnectionHook
-var connectionAfterUpdateMu sync.Mutex
-var connectionAfterUpdateHooks []ConnectionHook
+var roomBeforeUpdateMu sync.Mutex
+var roomBeforeUpdateHooks []RoomHook
+var roomAfterUpdateMu sync.Mutex
+var roomAfterUpdateHooks []RoomHook
 
-var connectionBeforeDeleteMu sync.Mutex
-var connectionBeforeDeleteHooks []ConnectionHook
-var connectionAfterDeleteMu sync.Mutex
-var connectionAfterDeleteHooks []ConnectionHook
+var roomBeforeDeleteMu sync.Mutex
+var roomBeforeDeleteHooks []RoomHook
+var roomAfterDeleteMu sync.Mutex
+var roomAfterDeleteHooks []RoomHook
 
-var connectionBeforeUpsertMu sync.Mutex
-var connectionBeforeUpsertHooks []ConnectionHook
-var connectionAfterUpsertMu sync.Mutex
-var connectionAfterUpsertHooks []ConnectionHook
+var roomBeforeUpsertMu sync.Mutex
+var roomBeforeUpsertHooks []RoomHook
+var roomAfterUpsertMu sync.Mutex
+var roomAfterUpsertHooks []RoomHook
 
 // doAfterSelectHooks executes all "after Select" hooks.
-func (o *Connection) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Room) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range connectionAfterSelectHooks {
+	for _, hook := range roomAfterSelectHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -180,12 +180,12 @@ func (o *Connection) doAfterSelectHooks(ctx context.Context, exec boil.ContextEx
 }
 
 // doBeforeInsertHooks executes all "before insert" hooks.
-func (o *Connection) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Room) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range connectionBeforeInsertHooks {
+	for _, hook := range roomBeforeInsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -195,12 +195,12 @@ func (o *Connection) doBeforeInsertHooks(ctx context.Context, exec boil.ContextE
 }
 
 // doAfterInsertHooks executes all "after Insert" hooks.
-func (o *Connection) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Room) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range connectionAfterInsertHooks {
+	for _, hook := range roomAfterInsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -210,12 +210,12 @@ func (o *Connection) doAfterInsertHooks(ctx context.Context, exec boil.ContextEx
 }
 
 // doBeforeUpdateHooks executes all "before Update" hooks.
-func (o *Connection) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Room) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range connectionBeforeUpdateHooks {
+	for _, hook := range roomBeforeUpdateHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -225,12 +225,12 @@ func (o *Connection) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextE
 }
 
 // doAfterUpdateHooks executes all "after Update" hooks.
-func (o *Connection) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Room) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range connectionAfterUpdateHooks {
+	for _, hook := range roomAfterUpdateHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -240,12 +240,12 @@ func (o *Connection) doAfterUpdateHooks(ctx context.Context, exec boil.ContextEx
 }
 
 // doBeforeDeleteHooks executes all "before Delete" hooks.
-func (o *Connection) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Room) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range connectionBeforeDeleteHooks {
+	for _, hook := range roomBeforeDeleteHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -255,12 +255,12 @@ func (o *Connection) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextE
 }
 
 // doAfterDeleteHooks executes all "after Delete" hooks.
-func (o *Connection) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Room) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range connectionAfterDeleteHooks {
+	for _, hook := range roomAfterDeleteHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -270,12 +270,12 @@ func (o *Connection) doAfterDeleteHooks(ctx context.Context, exec boil.ContextEx
 }
 
 // doBeforeUpsertHooks executes all "before Upsert" hooks.
-func (o *Connection) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Room) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range connectionBeforeUpsertHooks {
+	for _, hook := range roomBeforeUpsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -285,12 +285,12 @@ func (o *Connection) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextE
 }
 
 // doAfterUpsertHooks executes all "after Upsert" hooks.
-func (o *Connection) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Room) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range connectionAfterUpsertHooks {
+	for _, hook := range roomAfterUpsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -299,51 +299,51 @@ func (o *Connection) doAfterUpsertHooks(ctx context.Context, exec boil.ContextEx
 	return nil
 }
 
-// AddConnectionHook registers your hook function for all future operations.
-func AddConnectionHook(hookPoint boil.HookPoint, connectionHook ConnectionHook) {
+// AddRoomHook registers your hook function for all future operations.
+func AddRoomHook(hookPoint boil.HookPoint, roomHook RoomHook) {
 	switch hookPoint {
 	case boil.AfterSelectHook:
-		connectionAfterSelectMu.Lock()
-		connectionAfterSelectHooks = append(connectionAfterSelectHooks, connectionHook)
-		connectionAfterSelectMu.Unlock()
+		roomAfterSelectMu.Lock()
+		roomAfterSelectHooks = append(roomAfterSelectHooks, roomHook)
+		roomAfterSelectMu.Unlock()
 	case boil.BeforeInsertHook:
-		connectionBeforeInsertMu.Lock()
-		connectionBeforeInsertHooks = append(connectionBeforeInsertHooks, connectionHook)
-		connectionBeforeInsertMu.Unlock()
+		roomBeforeInsertMu.Lock()
+		roomBeforeInsertHooks = append(roomBeforeInsertHooks, roomHook)
+		roomBeforeInsertMu.Unlock()
 	case boil.AfterInsertHook:
-		connectionAfterInsertMu.Lock()
-		connectionAfterInsertHooks = append(connectionAfterInsertHooks, connectionHook)
-		connectionAfterInsertMu.Unlock()
+		roomAfterInsertMu.Lock()
+		roomAfterInsertHooks = append(roomAfterInsertHooks, roomHook)
+		roomAfterInsertMu.Unlock()
 	case boil.BeforeUpdateHook:
-		connectionBeforeUpdateMu.Lock()
-		connectionBeforeUpdateHooks = append(connectionBeforeUpdateHooks, connectionHook)
-		connectionBeforeUpdateMu.Unlock()
+		roomBeforeUpdateMu.Lock()
+		roomBeforeUpdateHooks = append(roomBeforeUpdateHooks, roomHook)
+		roomBeforeUpdateMu.Unlock()
 	case boil.AfterUpdateHook:
-		connectionAfterUpdateMu.Lock()
-		connectionAfterUpdateHooks = append(connectionAfterUpdateHooks, connectionHook)
-		connectionAfterUpdateMu.Unlock()
+		roomAfterUpdateMu.Lock()
+		roomAfterUpdateHooks = append(roomAfterUpdateHooks, roomHook)
+		roomAfterUpdateMu.Unlock()
 	case boil.BeforeDeleteHook:
-		connectionBeforeDeleteMu.Lock()
-		connectionBeforeDeleteHooks = append(connectionBeforeDeleteHooks, connectionHook)
-		connectionBeforeDeleteMu.Unlock()
+		roomBeforeDeleteMu.Lock()
+		roomBeforeDeleteHooks = append(roomBeforeDeleteHooks, roomHook)
+		roomBeforeDeleteMu.Unlock()
 	case boil.AfterDeleteHook:
-		connectionAfterDeleteMu.Lock()
-		connectionAfterDeleteHooks = append(connectionAfterDeleteHooks, connectionHook)
-		connectionAfterDeleteMu.Unlock()
+		roomAfterDeleteMu.Lock()
+		roomAfterDeleteHooks = append(roomAfterDeleteHooks, roomHook)
+		roomAfterDeleteMu.Unlock()
 	case boil.BeforeUpsertHook:
-		connectionBeforeUpsertMu.Lock()
-		connectionBeforeUpsertHooks = append(connectionBeforeUpsertHooks, connectionHook)
-		connectionBeforeUpsertMu.Unlock()
+		roomBeforeUpsertMu.Lock()
+		roomBeforeUpsertHooks = append(roomBeforeUpsertHooks, roomHook)
+		roomBeforeUpsertMu.Unlock()
 	case boil.AfterUpsertHook:
-		connectionAfterUpsertMu.Lock()
-		connectionAfterUpsertHooks = append(connectionAfterUpsertHooks, connectionHook)
-		connectionAfterUpsertMu.Unlock()
+		roomAfterUpsertMu.Lock()
+		roomAfterUpsertHooks = append(roomAfterUpsertHooks, roomHook)
+		roomAfterUpsertMu.Unlock()
 	}
 }
 
-// One returns a single connection record from the query.
-func (q connectionQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Connection, error) {
-	o := &Connection{}
+// One returns a single room record from the query.
+func (q roomQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Room, error) {
+	o := &Room{}
 
 	queries.SetLimit(q.Query, 1)
 
@@ -352,7 +352,7 @@ func (q connectionQuery) One(ctx context.Context, exec boil.ContextExecutor) (*C
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: failed to execute a one query for connections")
+		return nil, errors.Wrap(err, "models: failed to execute a one query for rooms")
 	}
 
 	if err := o.doAfterSelectHooks(ctx, exec); err != nil {
@@ -362,16 +362,16 @@ func (q connectionQuery) One(ctx context.Context, exec boil.ContextExecutor) (*C
 	return o, nil
 }
 
-// All returns all Connection records from the query.
-func (q connectionQuery) All(ctx context.Context, exec boil.ContextExecutor) (ConnectionSlice, error) {
-	var o []*Connection
+// All returns all Room records from the query.
+func (q roomQuery) All(ctx context.Context, exec boil.ContextExecutor) (RoomSlice, error) {
+	var o []*Room
 
 	err := q.Bind(ctx, exec, &o)
 	if err != nil {
-		return nil, errors.Wrap(err, "models: failed to assign all query results to Connection slice")
+		return nil, errors.Wrap(err, "models: failed to assign all query results to Room slice")
 	}
 
-	if len(connectionAfterSelectHooks) != 0 {
+	if len(roomAfterSelectHooks) != 0 {
 		for _, obj := range o {
 			if err := obj.doAfterSelectHooks(ctx, exec); err != nil {
 				return o, err
@@ -382,8 +382,8 @@ func (q connectionQuery) All(ctx context.Context, exec boil.ContextExecutor) (Co
 	return o, nil
 }
 
-// Count returns the count of all Connection records in the query.
-func (q connectionQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+// Count returns the count of all Room records in the query.
+func (q roomQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	var count int64
 
 	queries.SetSelect(q.Query, nil)
@@ -391,14 +391,14 @@ func (q connectionQuery) Count(ctx context.Context, exec boil.ContextExecutor) (
 
 	err := q.Query.QueryRowContext(ctx, exec).Scan(&count)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to count connections rows")
+		return 0, errors.Wrap(err, "models: failed to count rooms rows")
 	}
 
 	return count, nil
 }
 
 // Exists checks if the row exists in the table.
-func (q connectionQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
+func (q roomQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
 	var count int64
 
 	queries.SetSelect(q.Query, nil)
@@ -407,14 +407,14 @@ func (q connectionQuery) Exists(ctx context.Context, exec boil.ContextExecutor) 
 
 	err := q.Query.QueryRowContext(ctx, exec).Scan(&count)
 	if err != nil {
-		return false, errors.Wrap(err, "models: failed to check if connections exists")
+		return false, errors.Wrap(err, "models: failed to check if rooms exists")
 	}
 
 	return count > 0, nil
 }
 
 // UserID1User pointed to by the foreign key.
-func (o *Connection) UserID1User(mods ...qm.QueryMod) userQuery {
+func (o *Room) UserID1User(mods ...qm.QueryMod) userQuery {
 	queryMods := []qm.QueryMod{
 		qm.Where("\"user_id\" = ?", o.UserID1),
 	}
@@ -425,7 +425,7 @@ func (o *Connection) UserID1User(mods ...qm.QueryMod) userQuery {
 }
 
 // UserID2User pointed to by the foreign key.
-func (o *Connection) UserID2User(mods ...qm.QueryMod) userQuery {
+func (o *Room) UserID2User(mods ...qm.QueryMod) userQuery {
 	queryMods := []qm.QueryMod{
 		qm.Where("\"user_id\" = ?", o.UserID2),
 	}
@@ -437,28 +437,28 @@ func (o *Connection) UserID2User(mods ...qm.QueryMod) userQuery {
 
 // LoadUserID1User allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for an N-1 relationship.
-func (connectionL) LoadUserID1User(ctx context.Context, e boil.ContextExecutor, singular bool, maybeConnection interface{}, mods queries.Applicator) error {
-	var slice []*Connection
-	var object *Connection
+func (roomL) LoadUserID1User(ctx context.Context, e boil.ContextExecutor, singular bool, maybeRoom interface{}, mods queries.Applicator) error {
+	var slice []*Room
+	var object *Room
 
 	if singular {
 		var ok bool
-		object, ok = maybeConnection.(*Connection)
+		object, ok = maybeRoom.(*Room)
 		if !ok {
-			object = new(Connection)
-			ok = queries.SetFromEmbeddedStruct(&object, &maybeConnection)
+			object = new(Room)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeRoom)
 			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeConnection))
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeRoom))
 			}
 		}
 	} else {
-		s, ok := maybeConnection.(*[]*Connection)
+		s, ok := maybeRoom.(*[]*Room)
 		if ok {
 			slice = *s
 		} else {
-			ok = queries.SetFromEmbeddedStruct(&slice, maybeConnection)
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeRoom)
 			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeConnection))
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeRoom))
 			}
 		}
 	}
@@ -466,14 +466,14 @@ func (connectionL) LoadUserID1User(ctx context.Context, e boil.ContextExecutor, 
 	args := make(map[interface{}]struct{})
 	if singular {
 		if object.R == nil {
-			object.R = &connectionR{}
+			object.R = &roomR{}
 		}
 		args[object.UserID1] = struct{}{}
 
 	} else {
 		for _, obj := range slice {
 			if obj.R == nil {
-				obj.R = &connectionR{}
+				obj.R = &roomR{}
 			}
 
 			args[obj.UserID1] = struct{}{}
@@ -535,7 +535,7 @@ func (connectionL) LoadUserID1User(ctx context.Context, e boil.ContextExecutor, 
 		if foreign.R == nil {
 			foreign.R = &userR{}
 		}
-		foreign.R.UserID1Connections = append(foreign.R.UserID1Connections, object)
+		foreign.R.UserID1Rooms = append(foreign.R.UserID1Rooms, object)
 		return nil
 	}
 
@@ -546,7 +546,7 @@ func (connectionL) LoadUserID1User(ctx context.Context, e boil.ContextExecutor, 
 				if foreign.R == nil {
 					foreign.R = &userR{}
 				}
-				foreign.R.UserID1Connections = append(foreign.R.UserID1Connections, local)
+				foreign.R.UserID1Rooms = append(foreign.R.UserID1Rooms, local)
 				break
 			}
 		}
@@ -557,28 +557,28 @@ func (connectionL) LoadUserID1User(ctx context.Context, e boil.ContextExecutor, 
 
 // LoadUserID2User allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for an N-1 relationship.
-func (connectionL) LoadUserID2User(ctx context.Context, e boil.ContextExecutor, singular bool, maybeConnection interface{}, mods queries.Applicator) error {
-	var slice []*Connection
-	var object *Connection
+func (roomL) LoadUserID2User(ctx context.Context, e boil.ContextExecutor, singular bool, maybeRoom interface{}, mods queries.Applicator) error {
+	var slice []*Room
+	var object *Room
 
 	if singular {
 		var ok bool
-		object, ok = maybeConnection.(*Connection)
+		object, ok = maybeRoom.(*Room)
 		if !ok {
-			object = new(Connection)
-			ok = queries.SetFromEmbeddedStruct(&object, &maybeConnection)
+			object = new(Room)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeRoom)
 			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeConnection))
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeRoom))
 			}
 		}
 	} else {
-		s, ok := maybeConnection.(*[]*Connection)
+		s, ok := maybeRoom.(*[]*Room)
 		if ok {
 			slice = *s
 		} else {
-			ok = queries.SetFromEmbeddedStruct(&slice, maybeConnection)
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeRoom)
 			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeConnection))
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeRoom))
 			}
 		}
 	}
@@ -586,14 +586,14 @@ func (connectionL) LoadUserID2User(ctx context.Context, e boil.ContextExecutor, 
 	args := make(map[interface{}]struct{})
 	if singular {
 		if object.R == nil {
-			object.R = &connectionR{}
+			object.R = &roomR{}
 		}
 		args[object.UserID2] = struct{}{}
 
 	} else {
 		for _, obj := range slice {
 			if obj.R == nil {
-				obj.R = &connectionR{}
+				obj.R = &roomR{}
 			}
 
 			args[obj.UserID2] = struct{}{}
@@ -655,7 +655,7 @@ func (connectionL) LoadUserID2User(ctx context.Context, e boil.ContextExecutor, 
 		if foreign.R == nil {
 			foreign.R = &userR{}
 		}
-		foreign.R.UserID2Connections = append(foreign.R.UserID2Connections, object)
+		foreign.R.UserID2Rooms = append(foreign.R.UserID2Rooms, object)
 		return nil
 	}
 
@@ -666,7 +666,7 @@ func (connectionL) LoadUserID2User(ctx context.Context, e boil.ContextExecutor, 
 				if foreign.R == nil {
 					foreign.R = &userR{}
 				}
-				foreign.R.UserID2Connections = append(foreign.R.UserID2Connections, local)
+				foreign.R.UserID2Rooms = append(foreign.R.UserID2Rooms, local)
 				break
 			}
 		}
@@ -675,10 +675,10 @@ func (connectionL) LoadUserID2User(ctx context.Context, e boil.ContextExecutor, 
 	return nil
 }
 
-// SetUserID1User of the connection to the related item.
+// SetUserID1User of the room to the related item.
 // Sets o.R.UserID1User to related.
-// Adds o to related.R.UserID1Connections.
-func (o *Connection) SetUserID1User(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) error {
+// Adds o to related.R.UserID1Rooms.
+func (o *Room) SetUserID1User(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) error {
 	var err error
 	if insert {
 		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
@@ -687,11 +687,11 @@ func (o *Connection) SetUserID1User(ctx context.Context, exec boil.ContextExecut
 	}
 
 	updateQuery := fmt.Sprintf(
-		"UPDATE \"connections\" SET %s WHERE %s",
+		"UPDATE \"rooms\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 1, []string{"user_id_1"}),
-		strmangle.WhereClause("\"", "\"", 2, connectionPrimaryKeyColumns),
+		strmangle.WhereClause("\"", "\"", 2, roomPrimaryKeyColumns),
 	)
-	values := []interface{}{related.UserID, o.ChatID}
+	values := []interface{}{related.UserID, o.RoomID}
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -704,7 +704,7 @@ func (o *Connection) SetUserID1User(ctx context.Context, exec boil.ContextExecut
 
 	o.UserID1 = related.UserID
 	if o.R == nil {
-		o.R = &connectionR{
+		o.R = &roomR{
 			UserID1User: related,
 		}
 	} else {
@@ -713,19 +713,19 @@ func (o *Connection) SetUserID1User(ctx context.Context, exec boil.ContextExecut
 
 	if related.R == nil {
 		related.R = &userR{
-			UserID1Connections: ConnectionSlice{o},
+			UserID1Rooms: RoomSlice{o},
 		}
 	} else {
-		related.R.UserID1Connections = append(related.R.UserID1Connections, o)
+		related.R.UserID1Rooms = append(related.R.UserID1Rooms, o)
 	}
 
 	return nil
 }
 
-// SetUserID2User of the connection to the related item.
+// SetUserID2User of the room to the related item.
 // Sets o.R.UserID2User to related.
-// Adds o to related.R.UserID2Connections.
-func (o *Connection) SetUserID2User(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) error {
+// Adds o to related.R.UserID2Rooms.
+func (o *Room) SetUserID2User(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) error {
 	var err error
 	if insert {
 		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
@@ -734,11 +734,11 @@ func (o *Connection) SetUserID2User(ctx context.Context, exec boil.ContextExecut
 	}
 
 	updateQuery := fmt.Sprintf(
-		"UPDATE \"connections\" SET %s WHERE %s",
+		"UPDATE \"rooms\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 1, []string{"user_id_2"}),
-		strmangle.WhereClause("\"", "\"", 2, connectionPrimaryKeyColumns),
+		strmangle.WhereClause("\"", "\"", 2, roomPrimaryKeyColumns),
 	)
-	values := []interface{}{related.UserID, o.ChatID}
+	values := []interface{}{related.UserID, o.RoomID}
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -751,7 +751,7 @@ func (o *Connection) SetUserID2User(ctx context.Context, exec boil.ContextExecut
 
 	o.UserID2 = related.UserID
 	if o.R == nil {
-		o.R = &connectionR{
+		o.R = &roomR{
 			UserID2User: related,
 		}
 	} else {
@@ -760,61 +760,61 @@ func (o *Connection) SetUserID2User(ctx context.Context, exec boil.ContextExecut
 
 	if related.R == nil {
 		related.R = &userR{
-			UserID2Connections: ConnectionSlice{o},
+			UserID2Rooms: RoomSlice{o},
 		}
 	} else {
-		related.R.UserID2Connections = append(related.R.UserID2Connections, o)
+		related.R.UserID2Rooms = append(related.R.UserID2Rooms, o)
 	}
 
 	return nil
 }
 
-// Connections retrieves all the records using an executor.
-func Connections(mods ...qm.QueryMod) connectionQuery {
-	mods = append(mods, qm.From("\"connections\""))
+// Rooms retrieves all the records using an executor.
+func Rooms(mods ...qm.QueryMod) roomQuery {
+	mods = append(mods, qm.From("\"rooms\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
-		queries.SetSelect(q, []string{"\"connections\".*"})
+		queries.SetSelect(q, []string{"\"rooms\".*"})
 	}
 
-	return connectionQuery{q}
+	return roomQuery{q}
 }
 
-// FindConnection retrieves a single record by ID with an executor.
+// FindRoom retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindConnection(ctx context.Context, exec boil.ContextExecutor, chatID int, selectCols ...string) (*Connection, error) {
-	connectionObj := &Connection{}
+func FindRoom(ctx context.Context, exec boil.ContextExecutor, roomID int, selectCols ...string) (*Room, error) {
+	roomObj := &Room{}
 
 	sel := "*"
 	if len(selectCols) > 0 {
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"connections\" where \"chat_id\"=$1", sel,
+		"select %s from \"rooms\" where \"room_id\"=$1", sel,
 	)
 
-	q := queries.Raw(query, chatID)
+	q := queries.Raw(query, roomID)
 
-	err := q.Bind(ctx, exec, connectionObj)
+	err := q.Bind(ctx, exec, roomObj)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: unable to select from connections")
+		return nil, errors.Wrap(err, "models: unable to select from rooms")
 	}
 
-	if err = connectionObj.doAfterSelectHooks(ctx, exec); err != nil {
-		return connectionObj, err
+	if err = roomObj.doAfterSelectHooks(ctx, exec); err != nil {
+		return roomObj, err
 	}
 
-	return connectionObj, nil
+	return roomObj, nil
 }
 
 // Insert a single record using an executor.
 // See boil.Columns.InsertColumnSet documentation to understand column list inference for inserts.
-func (o *Connection) Insert(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) error {
+func (o *Room) Insert(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) error {
 	if o == nil {
-		return errors.New("models: no connections provided for insertion")
+		return errors.New("models: no rooms provided for insertion")
 	}
 
 	var err error
@@ -823,33 +823,33 @@ func (o *Connection) Insert(ctx context.Context, exec boil.ContextExecutor, colu
 		return err
 	}
 
-	nzDefaults := queries.NonZeroDefaultSet(connectionColumnsWithDefault, o)
+	nzDefaults := queries.NonZeroDefaultSet(roomColumnsWithDefault, o)
 
 	key := makeCacheKey(columns, nzDefaults)
-	connectionInsertCacheMut.RLock()
-	cache, cached := connectionInsertCache[key]
-	connectionInsertCacheMut.RUnlock()
+	roomInsertCacheMut.RLock()
+	cache, cached := roomInsertCache[key]
+	roomInsertCacheMut.RUnlock()
 
 	if !cached {
 		wl, returnColumns := columns.InsertColumnSet(
-			connectionAllColumns,
-			connectionColumnsWithDefault,
-			connectionColumnsWithoutDefault,
+			roomAllColumns,
+			roomColumnsWithDefault,
+			roomColumnsWithoutDefault,
 			nzDefaults,
 		)
 
-		cache.valueMapping, err = queries.BindMapping(connectionType, connectionMapping, wl)
+		cache.valueMapping, err = queries.BindMapping(roomType, roomMapping, wl)
 		if err != nil {
 			return err
 		}
-		cache.retMapping, err = queries.BindMapping(connectionType, connectionMapping, returnColumns)
+		cache.retMapping, err = queries.BindMapping(roomType, roomMapping, returnColumns)
 		if err != nil {
 			return err
 		}
 		if len(wl) != 0 {
-			cache.query = fmt.Sprintf("INSERT INTO \"connections\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
+			cache.query = fmt.Sprintf("INSERT INTO \"rooms\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
 		} else {
-			cache.query = "INSERT INTO \"connections\" %sDEFAULT VALUES%s"
+			cache.query = "INSERT INTO \"rooms\" %sDEFAULT VALUES%s"
 		}
 
 		var queryOutput, queryReturning string
@@ -877,49 +877,49 @@ func (o *Connection) Insert(ctx context.Context, exec boil.ContextExecutor, colu
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "models: unable to insert into connections")
+		return errors.Wrap(err, "models: unable to insert into rooms")
 	}
 
 	if !cached {
-		connectionInsertCacheMut.Lock()
-		connectionInsertCache[key] = cache
-		connectionInsertCacheMut.Unlock()
+		roomInsertCacheMut.Lock()
+		roomInsertCache[key] = cache
+		roomInsertCacheMut.Unlock()
 	}
 
 	return o.doAfterInsertHooks(ctx, exec)
 }
 
-// Update uses an executor to update the Connection.
+// Update uses an executor to update the Room.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
-func (o *Connection) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
+func (o *Room) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
 	var err error
 	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
 		return 0, err
 	}
 	key := makeCacheKey(columns, nil)
-	connectionUpdateCacheMut.RLock()
-	cache, cached := connectionUpdateCache[key]
-	connectionUpdateCacheMut.RUnlock()
+	roomUpdateCacheMut.RLock()
+	cache, cached := roomUpdateCache[key]
+	roomUpdateCacheMut.RUnlock()
 
 	if !cached {
 		wl := columns.UpdateColumnSet(
-			connectionAllColumns,
-			connectionPrimaryKeyColumns,
+			roomAllColumns,
+			roomPrimaryKeyColumns,
 		)
 
 		if !columns.IsWhitelist() {
 			wl = strmangle.SetComplement(wl, []string{"created_at"})
 		}
 		if len(wl) == 0 {
-			return 0, errors.New("models: unable to update connections, could not build whitelist")
+			return 0, errors.New("models: unable to update rooms, could not build whitelist")
 		}
 
-		cache.query = fmt.Sprintf("UPDATE \"connections\" SET %s WHERE %s",
+		cache.query = fmt.Sprintf("UPDATE \"rooms\" SET %s WHERE %s",
 			strmangle.SetParamNames("\"", "\"", 1, wl),
-			strmangle.WhereClause("\"", "\"", len(wl)+1, connectionPrimaryKeyColumns),
+			strmangle.WhereClause("\"", "\"", len(wl)+1, roomPrimaryKeyColumns),
 		)
-		cache.valueMapping, err = queries.BindMapping(connectionType, connectionMapping, append(wl, connectionPrimaryKeyColumns...))
+		cache.valueMapping, err = queries.BindMapping(roomType, roomMapping, append(wl, roomPrimaryKeyColumns...))
 		if err != nil {
 			return 0, err
 		}
@@ -935,42 +935,42 @@ func (o *Connection) Update(ctx context.Context, exec boil.ContextExecutor, colu
 	var result sql.Result
 	result, err = exec.ExecContext(ctx, cache.query, values...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update connections row")
+		return 0, errors.Wrap(err, "models: unable to update rooms row")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by update for connections")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by update for rooms")
 	}
 
 	if !cached {
-		connectionUpdateCacheMut.Lock()
-		connectionUpdateCache[key] = cache
-		connectionUpdateCacheMut.Unlock()
+		roomUpdateCacheMut.Lock()
+		roomUpdateCache[key] = cache
+		roomUpdateCacheMut.Unlock()
 	}
 
 	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
 }
 
 // UpdateAll updates all rows with the specified column values.
-func (q connectionQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
+func (q roomQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	queries.SetUpdate(q.Query, cols)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update all for connections")
+		return 0, errors.Wrap(err, "models: unable to update all for rooms")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to retrieve rows affected for connections")
+		return 0, errors.Wrap(err, "models: unable to retrieve rows affected for rooms")
 	}
 
 	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
-func (o ConnectionSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
+func (o RoomSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	ln := int64(len(o))
 	if ln == 0 {
 		return 0, nil
@@ -992,13 +992,13 @@ func (o ConnectionSlice) UpdateAll(ctx context.Context, exec boil.ContextExecuto
 
 	// Append all of the primary key values for each column
 	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), connectionPrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), roomPrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := fmt.Sprintf("UPDATE \"connections\" SET %s WHERE %s",
+	sql := fmt.Sprintf("UPDATE \"rooms\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 1, colNames),
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), len(colNames)+1, connectionPrimaryKeyColumns, len(o)))
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), len(colNames)+1, roomPrimaryKeyColumns, len(o)))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1007,28 +1007,28 @@ func (o ConnectionSlice) UpdateAll(ctx context.Context, exec boil.ContextExecuto
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update all in connection slice")
+		return 0, errors.Wrap(err, "models: unable to update all in room slice")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all connection")
+		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all room")
 	}
 	return rowsAff, nil
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
 // See boil.Columns documentation for how to properly use updateColumns and insertColumns.
-func (o *Connection) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns, opts ...UpsertOptionFunc) error {
+func (o *Room) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns, opts ...UpsertOptionFunc) error {
 	if o == nil {
-		return errors.New("models: no connections provided for upsert")
+		return errors.New("models: no rooms provided for upsert")
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
 		return err
 	}
 
-	nzDefaults := queries.NonZeroDefaultSet(connectionColumnsWithDefault, o)
+	nzDefaults := queries.NonZeroDefaultSet(roomColumnsWithDefault, o)
 
 	// Build cache key in-line uglily - mysql vs psql problems
 	buf := strmangle.GetBuffer()
@@ -1058,48 +1058,48 @@ func (o *Connection) Upsert(ctx context.Context, exec boil.ContextExecutor, upda
 	key := buf.String()
 	strmangle.PutBuffer(buf)
 
-	connectionUpsertCacheMut.RLock()
-	cache, cached := connectionUpsertCache[key]
-	connectionUpsertCacheMut.RUnlock()
+	roomUpsertCacheMut.RLock()
+	cache, cached := roomUpsertCache[key]
+	roomUpsertCacheMut.RUnlock()
 
 	var err error
 
 	if !cached {
 		insert, _ := insertColumns.InsertColumnSet(
-			connectionAllColumns,
-			connectionColumnsWithDefault,
-			connectionColumnsWithoutDefault,
+			roomAllColumns,
+			roomColumnsWithDefault,
+			roomColumnsWithoutDefault,
 			nzDefaults,
 		)
 
 		update := updateColumns.UpdateColumnSet(
-			connectionAllColumns,
-			connectionPrimaryKeyColumns,
+			roomAllColumns,
+			roomPrimaryKeyColumns,
 		)
 
 		if updateOnConflict && len(update) == 0 {
-			return errors.New("models: unable to upsert connections, could not build update column list")
+			return errors.New("models: unable to upsert rooms, could not build update column list")
 		}
 
-		ret := strmangle.SetComplement(connectionAllColumns, strmangle.SetIntersect(insert, update))
+		ret := strmangle.SetComplement(roomAllColumns, strmangle.SetIntersect(insert, update))
 
 		conflict := conflictColumns
 		if len(conflict) == 0 && updateOnConflict && len(update) != 0 {
-			if len(connectionPrimaryKeyColumns) == 0 {
-				return errors.New("models: unable to upsert connections, could not build conflict column list")
+			if len(roomPrimaryKeyColumns) == 0 {
+				return errors.New("models: unable to upsert rooms, could not build conflict column list")
 			}
 
-			conflict = make([]string, len(connectionPrimaryKeyColumns))
-			copy(conflict, connectionPrimaryKeyColumns)
+			conflict = make([]string, len(roomPrimaryKeyColumns))
+			copy(conflict, roomPrimaryKeyColumns)
 		}
-		cache.query = buildUpsertQueryPostgres(dialect, "\"connections\"", updateOnConflict, ret, update, conflict, insert, opts...)
+		cache.query = buildUpsertQueryPostgres(dialect, "\"rooms\"", updateOnConflict, ret, update, conflict, insert, opts...)
 
-		cache.valueMapping, err = queries.BindMapping(connectionType, connectionMapping, insert)
+		cache.valueMapping, err = queries.BindMapping(roomType, roomMapping, insert)
 		if err != nil {
 			return err
 		}
 		if len(ret) != 0 {
-			cache.retMapping, err = queries.BindMapping(connectionType, connectionMapping, ret)
+			cache.retMapping, err = queries.BindMapping(roomType, roomMapping, ret)
 			if err != nil {
 				return err
 			}
@@ -1127,31 +1127,31 @@ func (o *Connection) Upsert(ctx context.Context, exec boil.ContextExecutor, upda
 		_, err = exec.ExecContext(ctx, cache.query, vals...)
 	}
 	if err != nil {
-		return errors.Wrap(err, "models: unable to upsert connections")
+		return errors.Wrap(err, "models: unable to upsert rooms")
 	}
 
 	if !cached {
-		connectionUpsertCacheMut.Lock()
-		connectionUpsertCache[key] = cache
-		connectionUpsertCacheMut.Unlock()
+		roomUpsertCacheMut.Lock()
+		roomUpsertCache[key] = cache
+		roomUpsertCacheMut.Unlock()
 	}
 
 	return o.doAfterUpsertHooks(ctx, exec)
 }
 
-// Delete deletes a single Connection record with an executor.
+// Delete deletes a single Room record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *Connection) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o *Room) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
-		return 0, errors.New("models: no Connection provided for delete")
+		return 0, errors.New("models: no Room provided for delete")
 	}
 
 	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {
 		return 0, err
 	}
 
-	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), connectionPrimaryKeyMapping)
-	sql := "DELETE FROM \"connections\" WHERE \"chat_id\"=$1"
+	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), roomPrimaryKeyMapping)
+	sql := "DELETE FROM \"rooms\" WHERE \"room_id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1160,12 +1160,12 @@ func (o *Connection) Delete(ctx context.Context, exec boil.ContextExecutor) (int
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete from connections")
+		return 0, errors.Wrap(err, "models: unable to delete from rooms")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for connections")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for rooms")
 	}
 
 	if err := o.doAfterDeleteHooks(ctx, exec); err != nil {
@@ -1176,33 +1176,33 @@ func (o *Connection) Delete(ctx context.Context, exec boil.ContextExecutor) (int
 }
 
 // DeleteAll deletes all matching rows.
-func (q connectionQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (q roomQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if q.Query == nil {
-		return 0, errors.New("models: no connectionQuery provided for delete all")
+		return 0, errors.New("models: no roomQuery provided for delete all")
 	}
 
 	queries.SetDelete(q.Query)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete all from connections")
+		return 0, errors.Wrap(err, "models: unable to delete all from rooms")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for connections")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for rooms")
 	}
 
 	return rowsAff, nil
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o ConnectionSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o RoomSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
 
-	if len(connectionBeforeDeleteHooks) != 0 {
+	if len(roomBeforeDeleteHooks) != 0 {
 		for _, obj := range o {
 			if err := obj.doBeforeDeleteHooks(ctx, exec); err != nil {
 				return 0, err
@@ -1212,12 +1212,12 @@ func (o ConnectionSlice) DeleteAll(ctx context.Context, exec boil.ContextExecuto
 
 	var args []interface{}
 	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), connectionPrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), roomPrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "DELETE FROM \"connections\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, connectionPrimaryKeyColumns, len(o))
+	sql := "DELETE FROM \"rooms\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, roomPrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1226,15 +1226,15 @@ func (o ConnectionSlice) DeleteAll(ctx context.Context, exec boil.ContextExecuto
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete all from connection slice")
+		return 0, errors.Wrap(err, "models: unable to delete all from room slice")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for connections")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for rooms")
 	}
 
-	if len(connectionAfterDeleteHooks) != 0 {
+	if len(roomAfterDeleteHooks) != 0 {
 		for _, obj := range o {
 			if err := obj.doAfterDeleteHooks(ctx, exec); err != nil {
 				return 0, err
@@ -1247,8 +1247,8 @@ func (o ConnectionSlice) DeleteAll(ctx context.Context, exec boil.ContextExecuto
 
 // Reload refetches the object from the database
 // using the primary keys with an executor.
-func (o *Connection) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindConnection(ctx, exec, o.ChatID)
+func (o *Room) Reload(ctx context.Context, exec boil.ContextExecutor) error {
+	ret, err := FindRoom(ctx, exec, o.RoomID)
 	if err != nil {
 		return err
 	}
@@ -1259,26 +1259,26 @@ func (o *Connection) Reload(ctx context.Context, exec boil.ContextExecutor) erro
 
 // ReloadAll refetches every row with matching primary key column values
 // and overwrites the original object slice with the newly updated slice.
-func (o *ConnectionSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) error {
+func (o *RoomSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) error {
 	if o == nil || len(*o) == 0 {
 		return nil
 	}
 
-	slice := ConnectionSlice{}
+	slice := RoomSlice{}
 	var args []interface{}
 	for _, obj := range *o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), connectionPrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), roomPrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "SELECT \"connections\".* FROM \"connections\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, connectionPrimaryKeyColumns, len(*o))
+	sql := "SELECT \"rooms\".* FROM \"rooms\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, roomPrimaryKeyColumns, len(*o))
 
 	q := queries.Raw(sql, args...)
 
 	err := q.Bind(ctx, exec, &slice)
 	if err != nil {
-		return errors.Wrap(err, "models: unable to reload all in ConnectionSlice")
+		return errors.Wrap(err, "models: unable to reload all in RoomSlice")
 	}
 
 	*o = slice
@@ -1286,27 +1286,27 @@ func (o *ConnectionSlice) ReloadAll(ctx context.Context, exec boil.ContextExecut
 	return nil
 }
 
-// ConnectionExists checks if the Connection row exists.
-func ConnectionExists(ctx context.Context, exec boil.ContextExecutor, chatID int) (bool, error) {
+// RoomExists checks if the Room row exists.
+func RoomExists(ctx context.Context, exec boil.ContextExecutor, roomID int) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"connections\" where \"chat_id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"rooms\" where \"room_id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
 		fmt.Fprintln(writer, sql)
-		fmt.Fprintln(writer, chatID)
+		fmt.Fprintln(writer, roomID)
 	}
-	row := exec.QueryRowContext(ctx, sql, chatID)
+	row := exec.QueryRowContext(ctx, sql, roomID)
 
 	err := row.Scan(&exists)
 	if err != nil {
-		return false, errors.Wrap(err, "models: unable to check if connections exists")
+		return false, errors.Wrap(err, "models: unable to check if rooms exists")
 	}
 
 	return exists, nil
 }
 
-// Exists checks if the Connection row exists.
-func (o *Connection) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
-	return ConnectionExists(ctx, exec, o.ChatID)
+// Exists checks if the Room row exists.
+func (o *Room) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
+	return RoomExists(ctx, exec, o.RoomID)
 }

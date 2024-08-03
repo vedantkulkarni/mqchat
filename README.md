@@ -77,14 +77,23 @@ Here are some screenshots demonstrating various features of the chat system:
 2. **Get User**:
    ![Get User](./assets/get_user.png)
 
-3. **Get Connections**:
-   ![Get Connections](./assets/get_connections.png)
+3. **Get Chat Rooms**:
+   ![Get Rooms](./assets/get_connections.png)
 
 4. **Send Message Over MQTT Topic**:
    ![Send Message Over MQTT Topic](./assets/send_message_mqtt.png)
 
 5. **Receive Message Over MQTT Topic**:
    ![Receive Message Over MQTT Topic](./assets/recv_message_mqtt.png)
+
+6. **Generate JWT Token**:
+   ![Token based authentication and authorization](./assets/gen_token.png.png)
+
+7. **Validate JWT Token**:
+   ![Protected routes for better security](./assets/jwt_valid.png.png)
+
+8. **JWT Authorization**:
+   ![Role based access control](./assets/jwt_invalid.png.png)
 
 ## Contributing
 

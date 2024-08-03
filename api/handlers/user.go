@@ -16,13 +16,13 @@ import (
 
 type UserHandler struct {
 	grpcUserClient proto.UserGRPCServiceClient
-	grpcConnClient proto.ConnectionGRPCServiceClient
+	grpcRoomClient proto.RoomGRPCServiceClient
 }
 
-func NewUserHandler(client proto.UserGRPCServiceClient, connection proto.ConnectionGRPCServiceClient) *UserHandler {
+func NewUserHandler(userClient proto.UserGRPCServiceClient, roomClient proto.RoomGRPCServiceClient) *UserHandler {
 	return &UserHandler{
-		grpcUserClient: client,
-		grpcConnClient: connection,
+		grpcUserClient: userClient,
+		grpcRoomClient: roomClient,
 	}
 }
 
@@ -42,7 +42,7 @@ func (h *UserHandler) getUsers(c fiber.Ctx) error {
 
 	if filter == "user" {
 		h.getUser(c)
-	} else if filter == "connection" {
+	} else if filter == "room" {
 		uid, err := strconv.Atoi(uid)
 		if err != nil {
 			return jsonUtils.WriteJson(fiber.StatusBadRequest, nil, &jsonUtils.ApiError{
@@ -55,7 +55,6 @@ func (h *UserHandler) getUsers(c fiber.Ctx) error {
 		getUsersRequest := &proto.GetUsersRequest{
 			Id: int64(uid),
 		}
-		// fmt.Printf("Request received : %v", getConnectionsRequest)
 		response, err := h.grpcUserClient.GetUsers(c.Context(), getUsersRequest)
 		if err != nil {
 			grpcErr := status.Convert(err)
@@ -92,6 +91,7 @@ func (h *UserHandler) getUser(c fiber.Ctx) error {
 		}, c)
 	}
 	getUserRequest.Id = int64(uid)
+	getUserRequest.By = "user_id"
 	response, err := h.grpcUserClient.GetUser(c.Context(), getUserRequest)
 	if err != nil {
 		grpcError := status.Convert(err)
@@ -108,9 +108,15 @@ func (h *UserHandler) getUser(c fiber.Ctx) error {
 }
 
 func (h *UserHandler) createUser(c fiber.Ctx) error {
-	fmt.Println("Received create user request")
-	createUserRequest := new(proto.UpdateUserRequest)
-	e := c.Bind().Body(&createUserRequest)
+
+	type CreateUserRequest struct {
+		Username string `json:"username"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	createUserRequest := new(CreateUserRequest)
+	e := c.Bind().Body(createUserRequest)
 	if e != nil {
 		return jsonUtils.WriteJson(fiber.StatusBadRequest, nil, &jsonUtils.ApiError{
 			Code:    1,
@@ -119,12 +125,19 @@ func (h *UserHandler) createUser(c fiber.Ctx) error {
 		}, c)
 	}
 
-	createUserRequest.IsCreate = true
-	fmt.Printf("Request received : %v", createUserRequest)
-	fmt.Println("Making request to the gRPC User service")
-	response, err := h.grpcUserClient.UpdateUser(c.Context(), createUserRequest)
-	fmt.Println("Response from the gRPC User service %v", response)
-	fmt.Println("Error from the gRPC User service %v", err)
+	// Call gRPC method to create user
+	var req = &proto.UpdateUserRequest{
+		User: &proto.User{
+			Username: createUserRequest.Username,
+			Email:    createUserRequest.Email,
+			Password: createUserRequest.Password,
+		},
+		IsCreate: true,
+	}
+
+
+	response, err := h.grpcUserClient.UpdateUser(c.Context(), req)
+
 	if err != nil {
 		grpcError := status.Convert(err)
 		return jsonUtils.WriteJson(fiber.StatusInternalServerError, nil, &jsonUtils.ApiError{

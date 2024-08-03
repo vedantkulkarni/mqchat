@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/vedantkulkarni/mqchat/database"
+	database "github.com/vedantkulkarni/mqchat/db"
 	"github.com/vedantkulkarni/mqchat/gen/models"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -14,37 +14,34 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type UserGRPCServer struct { // Depends on DB and ConnectionGRPCServiceClient
+type UserGRPCServer struct { // Depends on DB
 	proto.UnimplementedUserGRPCServiceServer
-	ConnGrpcClient proto.ConnectionGRPCServiceClient
-	// MessageGrpcClient proto.MessageGRPCServiceClient
-	DB *sql.DB
+	RoomGRPCClient proto.RoomGRPCServiceClient
+	DB             *sql.DB
 }
 
-
 func (u *UserGRPCServer) GetUser(ctx context.Context, req *proto.GetUserRequest) (*proto.GetUserResponse, error) {
-
-	fmt.Println("Handled by GetUser")
 
 	var user *models.User
 	var err error
 	if req.By == "user_id" {
-
 		user, err = models.Users(qm.Where("user_id=?", req.Id)).One(ctx, u.DB)
-	} else if req.By == "user_email" {
-
-		user, err = models.Users(qm.Where("user_email=?", req.Email)).One(ctx, u.DB)
+	} else if req.By == "email" {
+		user, err = models.Users(qm.Where("email=?", req.Email)).One(ctx, u.DB)
 	}
 
-	if err != nil {
-		return nil, status.Error(codes.NotFound, "User not found")
+	if err != nil || user == nil {
+		return nil, status.Error(codes.NotFound, "User does not exist.")
 	}
+
+	fmt.Printf("User found : %v", user)
 
 	newUser := proto.GetUserResponse{
 		User: &proto.User{
 			Id:       int64(user.UserID),
-			Username: user.UserName,
-			Email:    user.UserEmail,
+			Username: user.Username,
+			Email:    user.Email,
+			Password: user.Password,
 		}}
 
 	return &newUser, nil
@@ -55,15 +52,15 @@ func (u *UserGRPCServer) GetUsers(ctx context.Context, req *proto.GetUsersReques
 
 	uid := req.Id
 
-	response, err := u.ConnGrpcClient.GetConnections(ctx, &proto.GetConnectionsRequest{UserId: uid})
+	response, err := u.RoomGRPCClient.GetRooms(ctx, &proto.GetRoomsRequest{UserId: uid})
 
 	if err != nil {
-		return nil, status.Error(codes.NotFound, "Connections not found")
+		return nil, status.Error(codes.NotFound, "Rooms not found")
 	}
 
 	var user_ids []int
 
-	for _, conn := range response.Connections {
+	for _, conn := range response.Rooms {
 		if conn.UserId_1 == uid {
 			user_ids = append(user_ids, int(conn.UserId_2))
 		} else {
@@ -85,9 +82,9 @@ func (u *UserGRPCServer) GetUsers(ctx context.Context, req *proto.GetUsersReques
 	var newUsers []*proto.User
 	for _, user := range users {
 		newUsers = append(newUsers, &proto.User{
-			// Id:       int64(user.UserID),
-			Username: user.UserName,
-			Email:    user.UserEmail,
+			Id:       int64(user.UserID),
+			Username: user.Username,
+			Email:    user.Email,
 		})
 	}
 
@@ -105,23 +102,22 @@ func (u *UserGRPCServer) DeleteUser(ctx context.Context, req *proto.DeleteUserRe
 
 func (u *UserGRPCServer) UpdateUser(ctx context.Context, req *proto.UpdateUserRequest) (*proto.UpdateUserResponse, error) {
 
-	if(req.IsCreate) {
+	if req.IsCreate {
 		return createUser(ctx, u, req)
 	} else {
 		return updateUser(ctx, u, req)
 	}
 
-	return nil, nil
 }
-
 
 // Helper functions
 
 func createUser(ctx context.Context, u *UserGRPCServer, req *proto.UpdateUserRequest) (*proto.UpdateUserResponse, error) {
 	fmt.Println("Handled by CreateUser in UserService")
 	user := &models.User{
-		UserName:  req.User.Username,
-		UserEmail: req.User.Email,
+		Username: req.User.Username,
+		Email:    req.User.Email,
+		Password: req.User.Password,
 	}
 
 	err := user.Insert(ctx, u.DB, boil.Infer())
@@ -134,8 +130,8 @@ func createUser(ctx context.Context, u *UserGRPCServer, req *proto.UpdateUserReq
 
 	createUserResponse := &proto.User{
 		Id:       int64((user.UserID)),
-		Username: user.UserName,
-		Email:    user.UserEmail,
+		Username: user.Username,
+		Email:    user.Email,
 	}
 
 	fmt.Printf("User created successfully : %v", createUserResponse)
@@ -145,17 +141,16 @@ func createUser(ctx context.Context, u *UserGRPCServer, req *proto.UpdateUserReq
 	}, nil
 }
 
-
 func updateUser(ctx context.Context, u *UserGRPCServer, req *proto.UpdateUserRequest) (*proto.UpdateUserResponse, error) {
 	fmt.Println("Handled by UpdateUser in UserService")
 	user := &models.User{
-		UserName:  req.User.Username,
-		UserEmail: req.User.Email,
+		Username: req.User.Username,
+		Email:    req.User.Email,
 	}
 
 	_, err := models.Users(qm.Where("user_id=?", req.User.Id)).UpdateAll(ctx, u.DB, models.M{
-		"user_name":  user.UserName,
-		"user_email": user.UserEmail,
+		"user_name":  user.Username,
+		"user_email": user.Email,
 	})
 
 	if err != nil {
@@ -166,8 +161,8 @@ func updateUser(ctx context.Context, u *UserGRPCServer, req *proto.UpdateUserReq
 
 	updateUserResponse := &proto.User{
 		Id:       req.User.Id,
-		Username: user.UserName,
-		Email:    user.UserEmail,
+		Username: user.Username,
+		Email:    user.Email,
 	}
 
 	fmt.Printf("User updated successfully : %v", updateUserResponse)
