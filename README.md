@@ -2,6 +2,11 @@
 
 This project is a chat system backend implemented in Go, utilizing a microservices architecture with MQTT, REST API, and gRPC for communication. The system supports real-time messaging and is designed for scalability and modularity.
 
+
+# Architecture
+(./assets/architecture.png)
+
+
 ## Setup Instructions
 
 ### Prerequisites
