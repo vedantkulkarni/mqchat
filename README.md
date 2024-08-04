@@ -6,6 +6,12 @@ This project is a chat system backend implemented in Go, utilizing a microservic
 # Architecture
 ![Application Architecture](./assets/architecture.png)
 
+# TODO
+- Implement Transaction Middleware for SQL Connections
+- Shift Controller Business Logic to Services Layer
+- Create Separate File for Routes
+- Add Rate Limiting Using Nginx
+
 
 ## Setup Instructions
 
@@ -15,6 +21,8 @@ This project is a chat system backend implemented in Go, utilizing a microservic
 - **Protocol Buffers Compiler (`protoc`)**: Required for generating Go code from `.proto` files. Installation instructions are available [here](https://grpc.io/docs/protoc-installation/).
 - **Docker and Docker Compose**: Ensure you have Docker and Docker Compose installed. You can download them from [docker.com](https://www.docker.com/products/docker-desktop).
 - **golang-migrate**: A tool used to perform database migrations using various database drivers [golang-migrate](https://pkg.go.dev/github.com/golang-migrate/migrate/v4). You can use any migration tool of your choice.
+
+
 
 ### Installation
 
