@@ -31,16 +31,12 @@ type ServerConfig struct {
 
 func getServerConfig(s *ServerConfig) *ServerConfig {
 	s.HttpPort = util.GetEnvVarInt("HTTP_PORT", 8080)
-	// s.UserServicePort = util.GetEnvVarInt("USER_SERVICE_GRPC_PORT", 2000)
-	// s.RoomServicePort = util.GetEnvVarInt("ROOM_SERVICE_GRPC_PORT", 2100)
-	// s.ChatServicePort = util.GetEnvVarInt("CHAT_SERVICE_GRPC_PORT", 2200)
-	// s.MQTTServicePort = util.GetEnvVarInt("CHAT_SERVICE_MQTT_PORT", 2300)
+	s.UserServicePort = util.GetEnvVarInt("USER_SERVICE_GRPC_PORT", 8003)
+	s.RoomServicePort = util.GetEnvVarInt("ROOMS_SERVICE_GRPC_PORT", 8004)
+	s.ChatServicePort = util.GetEnvVarInt("CHAT_SERVICE_GRPC_PORT", 8002)
+	s.MQTTServicePort = util.GetEnvVarInt("MQTT_PORT", 8001)
 
-	// Hardcoded for now
-	s.UserServicePort = "2000"
-	s.RoomServicePort = "2100"
-	s.ChatServicePort = "2200"
-	s.MQTTServicePort = "2300"
+
 	return s
 }
 

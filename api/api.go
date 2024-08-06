@@ -34,18 +34,18 @@ func (a *API) Start() error {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
-	user, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.userGrpcAddr), opts...)
+	user, err := grpc.NewClient(fmt.Sprintf("mqchat-user_service-1:%s", a.userGrpcAddr), opts...)
 	if err != nil {
 		log.Println("Error occurred while connecting to the gRPC server")
 		return err
 	}
-	room, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.roomGrpcAddr), opts...)
+	room, err := grpc.NewClient(fmt.Sprintf("mqchat-room_service-1:%s", a.roomGrpcAddr), opts...)
 	if err != nil {
 		log.Println("Error occurred while connecting to the gRPC server")
 		return err
 	}
 
-	chat, err := grpc.NewClient(fmt.Sprintf("localhost:%s", a.chatGrpcAddr), opts...)
+	chat, err := grpc.NewClient(fmt.Sprintf("mqchat-chat_service-1:%s", a.chatGrpcAddr), opts...)
 	if err != nil {
 		log.Println("Error occurred while connecting to the gRPC server")
 		return err

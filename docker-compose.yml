@@ -19,31 +19,20 @@ services:
     ports:
       - "5432:5432"
     
-  # server:
-  #   build: ./server
-  #   restart: always
-  #   ports:
-  #     - "8000:8000"
-  #   depends_on:
-  #     - db
-  #     - auth_service
-  #     - chat_service
-  #     - user_service
-  #     - room_service
-  #     - mqtt_service
-  #   environment:
-  #     DEBUG: "True"
-    
-  # auth_service:
-  #   build: ./services/auth/
-  #   restart: always
-  #   ports:
-  #     - "8001:8001"
-  #   depends_on:
-  #     - db
-  #   environment:
-  #     DEBUG: "True"
-  #     ALLOWED_HOSTS: "*"
+  server:
+    build: 
+      context: .
+      dockerfile: api/Dockerfile 
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
+  
+    environment:
+      DEBUG: "True"
+
 
   chat_service:
     build: 
@@ -86,15 +75,7 @@ services:
     environment:
       DEBUG: "True"
 
-  # mqtt_service:
-  #   build: ./mqtt_service
-  #   restart: always
-  #   ports:
-  #     - "1883:1883"
-  #   depends_on:
-  #     - db
-  #   environment:
-  #     DEBUG: "True"
+ 
       
   
 
