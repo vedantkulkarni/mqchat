@@ -50,7 +50,8 @@ This project is a chat system backend implemented in Go, utilizing a microservic
     migrate [POSTGRES_URL] up
     ```
 
-** Try out the APIs ** [Here](https://www.postman.com/vedant-kulkarni/workspace/my-workspace/collection/669d06a5ac392377cf1cb73a?action=share&creator=19317070)
+## Try out the APIs 
+[Here](https://www.postman.com/vedant-kulkarni/workspace/my-workspace/collection/669d06a5ac392377cf1cb73a?action=share&creator=19317070)
 
 ## Project Structure
 
