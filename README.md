@@ -11,6 +11,8 @@ This project is a chat system backend implemented in Go, utilizing a microservic
 - Shift Controller Business Logic to Services Layer
 - Create Separate File for Routes
 - Add Rate Limiting Using Nginx
+- Shift from MQTT to AMQP as the primary messaging protocol
+- Add OpenFGA Auth0 as a ReBAC layer
 
 
 ## Setup Instructions
