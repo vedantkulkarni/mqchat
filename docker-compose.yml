@@ -3,7 +3,6 @@ name: mqchat
 services: 
   db: 
     image: postgres
-    # restart: always
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment: 
@@ -18,21 +17,6 @@ services:
       retries: 5
     ports:
       - "5432:5432"
-    
-  server:
-    build: 
-      context: .
-      dockerfile: api/Dockerfile 
-    ports:
-      - "8000:8000"
-      - "8001:8001"
-    depends_on:
-      db:
-        condition: service_healthy
-  
-    environment:
-      DEBUG: "True"
-
 
   chat_service:
     build: 
@@ -47,6 +31,11 @@ services:
         condition: service_healthy
     environment:
       DEBUG: "True"
+    healthcheck:
+      test: ["CMD-SHELL", "../go/bin/grpc-health-probe -addr=mqchat-chat_service-1:8002 || exit 1"]
+      interval: 5s
+      timeout: 2s
+      retries: 2
 
   user_service:
     build:
@@ -72,6 +61,22 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      DEBUG: "True"
+      
+  server:
+    build: 
+      context: .
+      dockerfile: api/Dockerfile 
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
+      chat_service:
+        condition: service_healthy
+  
     environment:
       DEBUG: "True"
 

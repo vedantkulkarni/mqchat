@@ -2,13 +2,15 @@ package mqtt
 
 import (
 	"fmt"
-	"log"
+	"sync"
 
 	mqtt "github.com/mochi-mqtt/server/v2"
 	"github.com/mochi-mqtt/server/v2/hooks/auth"
 	"github.com/mochi-mqtt/server/v2/listeners"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
-	"google.golang.org/grpc"
+	"github.com/vedantkulkarni/mqchat/pkg/config"
+	grpcUtils "github.com/vedantkulkarni/mqchat/pkg/grpc"
+	"github.com/vedantkulkarni/mqchat/pkg/logger"
 )
 
 type MQTTService struct {
@@ -18,53 +20,38 @@ type MQTTService struct {
 }
 
 func NewMQTTService() *MQTTService {
-	// chatPort := utils.GetEnvVarInt("CHAT_SERVICE_GRPC_PORT", 8002)
-	// chatHost := utils.GetEnvVar("CHAT_SERVICE_GRPC_HOST", "service")
-	// Create a new MQTT server
-	opts := []grpc.DialOption{
-		grpc.WithInsecure(),
-	}
-	chat, err := grpc.NewClient(fmt.Sprintf("%v:%s", "localhost", "2200"), opts...)
-	if err != nil {
-		log.Println("Error while listening to mqtt service")
-	}
-	chatClient := proto.NewChatServiceClient(chat)
+
+	config := config.Get()
 
 	mqttServer := mqtt.New(&mqtt.Options{
 		InlineClient: false,
 	})
+
+	chatClient := grpcUtils.GetChatClientConn(config.ChatServicePort)
+
 	_ = mqttServer.AddHook(new(auth.AllowHook), nil)
-	_ = mqttServer.AddHook(new(ChatMQTTHook), &ChatHookOptions{Server: mqttServer, ChatGRPCClient: &chatClient, ChatGRPCMessagesClient: nil})
+	_ = mqttServer.AddHook(new(ChatMQTTHook), &ChatHookOptions{Server: mqttServer, ChatGRPCClient: &chatClient})
+
 	return &MQTTService{
 		Server:         mqttServer,
-		ChatGRPCClient: &chatClient,
-	}
+		ChatGRPCClient: &chatClient}
 }
 
-func (m *MQTTService) Start(port string) {
-	var block chan struct{}
-	// Start the MQTT server
-	listener := listeners.NewTCP(listeners.Config{Type: "tcp", Address: fmt.Sprintf(":%s", port)})
+func (m *MQTTService) Start(port string, wg *sync.WaitGroup) {
+	l := logger.Get()
 
-	// defer func(listner *listeners.TCP) {
-	// 	err : listener.Close()
-	// 	err != nil {
-	// 		fmt.Println("Error occurred while closing the listener")
-	// 	}
-	// }(listener)
+	defer wg.Done()
+
+	listener := listeners.NewTCP(listeners.Config{Type: "tcp", Address: fmt.Sprintf(":%s", port)})
 
 	err := m.Server.AddListener(listener)
 	if err != nil {
-		fmt.Println("Error adding listener to mqtt server")
+		l.Panic().Err(err).Msg("Error adding listener to MQTT server")
 	}
 
-	go func() {
-		err := m.Server.Serve()
-		if err != nil {
-			fmt.Println("Error occurred while serving mqtt server")
-		}
-	}()
-
-	<-block
+	err = m.Server.Serve()
+	if err != nil {
+		l.Panic().Err(err).Msg("Error starting MQTT server")
+	}
 
 }

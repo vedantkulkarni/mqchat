@@ -20,11 +20,10 @@ func NewChatHandler(client proto.ChatServiceClient) *ChatHandler {
 	}
 }
 
-func (h *ChatHandler) RegisterChatRoutes(chat fiber.Router) error {
+func (h *ChatHandler) RegisterChatRoutes(chat fiber.Router)  {
 	chat.Get("/", h.GetMessages)
 	chat.Post("/", h.SendMessage)
 
-	return nil
 }
 
 func (h *ChatHandler) GetMessages(c fiber.Ctx) error {

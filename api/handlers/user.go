@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/vedantkulkarni/mqchat/api/middlewares"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
 	jsonUtils "github.com/vedantkulkarni/mqchat/pkg/utils"
 	"google.golang.org/grpc/status"
@@ -26,22 +25,13 @@ func NewUserHandler(userClient proto.UserGRPCServiceClient, roomClient proto.Roo
 	}
 }
 
-func (h *UserHandler) RegisterUserRoutes(user fiber.Router) error {
-	user.Get("/", h.getUsers, api.AuthMiddleware)
-	user.Post("/", h.createUser) // Used for Signup
-	user.Put("/:uid", h.updateUser, api.AuthMiddleware)
-	user.Delete("/:uid", h.deleteUser, api.AuthMiddleware)
-
-	return nil
-}
-
-func (h *UserHandler) getUsers(c fiber.Ctx) error {
+func (h *UserHandler) GetUsers(c fiber.Ctx) error {
 	fmt.Println("Received getUsers request")
 	uid := c.Query("uid")
 	filter := c.Query("filter")
 
 	if filter == "user" {
-		h.getUser(c)
+		h.GetUser(c)
 	} else if filter == "room" {
 		uid, err := strconv.Atoi(uid)
 		if err != nil {
@@ -79,7 +69,7 @@ func (h *UserHandler) getUsers(c fiber.Ctx) error {
 
 }
 
-func (h *UserHandler) getUser(c fiber.Ctx) error {
+func (h *UserHandler) GetUser(c fiber.Ctx) error {
 	fmt.Println("Received get user request")
 	getUserRequest := new(proto.GetUserRequest)
 	uid, err := strconv.Atoi(c.Query("uid"))
@@ -107,7 +97,7 @@ func (h *UserHandler) getUser(c fiber.Ctx) error {
 
 }
 
-func (h *UserHandler) createUser(c fiber.Ctx) error {
+func (h *UserHandler) CreateUser(c fiber.Ctx) error {
 
 	type CreateUserRequest struct {
 		Username string `json:"username"`
@@ -135,7 +125,6 @@ func (h *UserHandler) createUser(c fiber.Ctx) error {
 		IsCreate: true,
 	}
 
-
 	response, err := h.grpcUserClient.UpdateUser(c.Context(), req)
 
 	if err != nil {
@@ -151,7 +140,7 @@ func (h *UserHandler) createUser(c fiber.Ctx) error {
 
 }
 
-func (h *UserHandler) updateUser(c fiber.Ctx) error {
+func (h *UserHandler) UpdateUser(c fiber.Ctx) error {
 	fmt.Println("Received update user request")
 
 	updateUserRequest := new(proto.UpdateUserRequest)
@@ -184,7 +173,7 @@ func (h *UserHandler) updateUser(c fiber.Ctx) error {
 	})
 }
 
-func (h *UserHandler) deleteUser(c fiber.Ctx) error {
+func (h *UserHandler) DeleteUser(c fiber.Ctx) error {
 	fmt.Println("Received delete user request")
 	uid, err := strconv.Atoi(c.Params("uid"))
 	if err != nil {

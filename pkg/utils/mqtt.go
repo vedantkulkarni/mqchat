@@ -9,7 +9,6 @@ import (
 
 func PublishMessage(client *mqtt.Client, payload interface{}) error {
 
-	// Publish a message to the client
 	err := client.WritePacket(packets.Packet{
 		FixedHeader: packets.FixedHeader{
 			Type: packets.Publish,
@@ -21,8 +20,6 @@ func PublishMessage(client *mqtt.Client, payload interface{}) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("Message published to client")
 
 	return nil
 }

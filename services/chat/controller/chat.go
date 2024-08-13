@@ -7,13 +7,16 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/vedantkulkarni/mqchat/db"
+	database "github.com/vedantkulkarni/mqchat/db"
 	"github.com/vedantkulkarni/mqchat/gen/models"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	healthPb "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 type ChatGRPCServer struct {
@@ -83,7 +86,6 @@ func NewChatGRPCServer(db *database.DbInterface) (*ChatGRPCServer, error) {
 }
 
 func (g *ChatGRPCServer) StartService(port string, host string) error {
-	var block chan struct{}
 	//Listen to gRPC responses
 	listener, err := net.Listen("tcp", fmt.Sprintf("%v:%v", host, port))
 	if err != nil {
@@ -97,16 +99,20 @@ func (g *ChatGRPCServer) StartService(port string, host string) error {
 		}
 	}(listener)
 	server := grpc.NewServer()
+	healthCheck := health.NewServer()
 
+	healthPb.RegisterHealthServer(server, healthCheck)
 	proto.RegisterChatServiceServer(server, g)
+
+	healthCheck.SetServingStatus("", healthPb.HealthCheckResponse_SERVING)
 
 	fmt.Println("gRPC chat server registered successfully")
 	if err := server.Serve(listener); err != nil {
 		fmt.Println("Error occured while serving the chat gRPC server")
+		healthCheck.SetServingStatus("", healthPb.HealthCheckResponse_NOT_SERVING)
 		return err
 	}
 	fmt.Println("gRPC chat server started successfully!")
 
-	<-block
 	return nil
 }

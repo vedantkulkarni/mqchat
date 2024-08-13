@@ -2,55 +2,67 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
-	"os"
+	"sync"
 
 	"github.com/joho/godotenv"
 	"github.com/vedantkulkarni/mqchat/db"
+	"github.com/vedantkulkarni/mqchat/pkg/logger"
 	"github.com/vedantkulkarni/mqchat/pkg/utils"
 	"github.com/vedantkulkarni/mqchat/services/chat/controller"
+
 )
+
+
 
 func main() {
 
-	var blocker chan bool
+	l:= logger.Get()
 
+	var wg sync.WaitGroup
 	err := godotenv.Load(".env")
 	if err != nil {
-		os.Exit(1)
+		l.Panic().Err(err).Msg("Error loading .env file")	
 	}
 
 	db, err := database.NewPostgresDB()
 	if err != nil {
-		fmt.Println("Error occurred while connecting to the database")
+		l.Err(err).Msg("Error occurred while creating the DB connection")
 	}
 
-	defer func(DB *sql.DB) {
+	
+	wg.Add(1)
+	defer func(DB *sql.DB, wg *sync.WaitGroup) {
+		defer wg.Done()
 		err := DB.Close()
 		if err != nil {
-			fmt.Println("Error occurred while closing DB")
+			l.Err(err).Msg("Error occurred while closing the DB connection")	
 		}
-	}(db.DB)
+	}(db.DB, &wg)
 
 	chatServer, err := controller.NewChatGRPCServer(db)
 	if err != nil {
-		fmt.Println("Error occurred while creating the gRPC server : Chat")
+		l.Err(err).Msg("Error occurred while creating the chat server")
 		return
 	}
 
 	chatServicePort := utils.GetEnvVarInt("CHAT_SERVICE_GRPC_PORT", 8002)
 	chatServiceHost := utils.GetEnvVar("CHAT_SERVICE_GRPC_HOST", "service")
 
-	go func() {
+	
+
+
+	wg.Add(1)	
+	go func(wg *sync.WaitGroup) {
+		defer wg.Done()
 		err := chatServer.StartService(chatServicePort, chatServiceHost)
 		if err != nil {
-			fmt.Println("Error occurred while starting the gRPC server : Chat")
+			l.Err(err).Msg("Error occurred while starting the chat server")
 		}
-	}()
+	}(&wg)
 
-	fmt.Println("Chat server started successfully!")
-	fmt.Println("Blocking the server")
 
-	<-blocker
+	wg.Wait()
+
+	l.Info().Msg("Chat service stopped")
 
 }

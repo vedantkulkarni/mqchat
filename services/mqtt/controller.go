@@ -5,16 +5,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"sync"
 
 	mqtt "github.com/mochi-mqtt/server/v2"
 	"github.com/mochi-mqtt/server/v2/packets"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
+	"github.com/vedantkulkarni/mqchat/pkg/logger"
 	"github.com/vedantkulkarni/mqchat/pkg/utils"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
 const (
-	clientChatTopic    string = "mqchat/client/chat/"
+	clientChatTopic string = "mqchat/client/chat/"
 )
 
 type ChatHookOptions struct {
@@ -58,28 +61,21 @@ func (h *ChatMQTTHook) Init(config any) error {
 // subscribeCallback handles messages for subscribed topics
 func (h *ChatMQTTHook) subscribeCallback(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
 
-	fmt.Println("Received message from client: ", cl.ID)
-
 }
 
 func (h *ChatMQTTHook) OnConnect(cl *mqtt.Client, pk packets.Packet) error {
 	//TODO: Basic checks if the the userID is authentic, if it exisits or if its already connected
 
 	// Get messages
+	getMessages(cl, pk, *h.config.ChatGRPCClient)
 
-	go func ()  {
-		getMessages(cl, pk, *h.config.ChatGRPCClient)	
-	}()
-
-
-	h.config.Server.Subscribe(pk.TopicName, 0, h.subscribeCallback)
 	return nil
 }
 
 func (h *ChatMQTTHook) OnDisconnect(cl *mqtt.Client, err error, expire bool) {
 
 	//Clean up code
-	h.config.Server.Unsubscribe(clientChatTopic + cl.ID, 0)
+	h.config.Server.Unsubscribe(clientChatTopic+cl.ID, 0)
 	h.config.Server.Clients.Delete(cl.ID)
 }
 
@@ -91,7 +87,7 @@ func (h *ChatMQTTHook) OnUnsubscribed(cl *mqtt.Client, pk packets.Packet) {
 
 func (h *ChatMQTTHook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Packet, error) {
 
-		return sendMessage(cl, pk, *h.config.ChatGRPCClient, h.config.Server)
+	return sendMessage(cl, pk, *h.config.ChatGRPCClient, h.config.Server)
 
 	return pk, nil
 
@@ -135,6 +131,8 @@ func sendMessage(cl *mqtt.Client, pk packets.Packet, grpcClient proto.ChatServic
 }
 
 func getMessages(cl *mqtt.Client, pk packets.Packet, grpcClient proto.ChatServiceClient) (packets.Packet, error) {
+	l := logger.Get()
+
 	message := pk.Payload
 	getMessageRequest := &proto.GetMessagesRequest{}
 	protojson.Unmarshal(message, getMessageRequest)
@@ -144,19 +142,40 @@ func getMessages(cl *mqtt.Client, pk packets.Packet, grpcClient proto.ChatServic
 		utils.PublishError(cl, errors.New("an error occurred while fetching the messages"))
 	}
 
-		go func() {
-		for {
-			message, err := stream.Recv()
-			if err != nil {
-				fmt.Println("Error occured while fetching chat messages from db ", err)
-				break
-			}
-			utils.PublishMessage(cl, message)
+	messageCh := make(chan *proto.Message)
+	errorCh := make(chan error)
 
+	for {
+		message, err := stream.Recv()
+		if err != nil {
+			l.Error().Err(err).Msg("error while receiving message")
+			errorCh <- err
+			break
 		}
-	}()
 
-	// utils.PublishMessage(cl, response)
+		messageCh <- message
+	}
+
+	var wg sync.WaitGroup
+
+	select {
+	case message := <-messageCh:
+		wg.Add(1)
+		go func() {
+			utils.PublishMessage(cl, message)
+			wg.Done()
+		}()
+
+	case err := <-errorCh:
+		if err == io.EOF {
+			l.Info().Msg("stream closed")
+			stream.CloseSend()
+		} else {
+			l.Error().Err(err).Msg("error while receiving message")
+		}
+	}
+
+	wg.Wait()
 
 	return pk, nil
 }

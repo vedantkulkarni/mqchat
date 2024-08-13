@@ -2,6 +2,8 @@ FROM golang:1.23-rc-alpine
 
 RUN apk --no-cache add git
 
+RUN go install github.com/grpc-ecosystem/grpc-health-probe@latest
+
 WORKDIR /app
 
 COPY go.mod go.sum .env ./

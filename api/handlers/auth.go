@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v3"
-	middleware "github.com/vedantkulkarni/mqchat/api/middlewares"
+	middleware "github.com/vedantkulkarni/mqchat/api/middleware"
 	"github.com/vedantkulkarni/mqchat/gen/proto"
 	"github.com/vedantkulkarni/mqchat/pkg/utils"
 	"google.golang.org/grpc/status"

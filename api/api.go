@@ -2,93 +2,44 @@ package api
 
 import (
 	"fmt"
-	"log"
+	"sync"
 
-	"github.com/vedantkulkarni/mqchat/api/handlers"
-	"github.com/vedantkulkarni/mqchat/gen/proto"
-	"google.golang.org/grpc"
+	"github.com/vedantkulkarni/mqchat/api/routes"
+	"github.com/vedantkulkarni/mqchat/pkg/logger"
 
 	"github.com/gofiber/fiber/v3"
 )
 
 type API struct {
-	httpAddr     string
-	userGrpcAddr string
-	roomGrpcAddr string
-	chatGrpcAddr string
+	HttpAddr     string
+
 }
 
-func NewAPI(httpAddr string, userAddr string, roomAddr string, chatAddr string) (*API, error) {
+func NewAPI(httpAddr string) (*API, error) {
 
 	return &API{
-		httpAddr:     httpAddr,
-		userGrpcAddr: userAddr,
-		roomGrpcAddr: roomAddr,
-		chatGrpcAddr: chatAddr,
+		HttpAddr:     httpAddr,
+	
 	}, nil
 }
 
-func (a *API) Start() error {
+func (a *API) Start(wg *sync.WaitGroup)  {
 
-	
-	opts := []grpc.DialOption{
-		grpc.WithInsecure(),
-	}
-	user, err := grpc.NewClient(fmt.Sprintf("mqchat-user_service-1:%s", a.userGrpcAddr), opts...)
-	if err != nil {
-		log.Println("Error occurred while connecting to the gRPC server")
-		return err
-	}
-	room, err := grpc.NewClient(fmt.Sprintf("mqchat-room_service-1:%s", a.roomGrpcAddr), opts...)
-	if err != nil {
-		log.Println("Error occurred while connecting to the gRPC server")
-		return err
-	}
+	l:= logger.Get()
 
-	chat, err := grpc.NewClient(fmt.Sprintf("mqchat-chat_service-1:%s", a.chatGrpcAddr), opts...)
-	if err != nil {
-		log.Println("Error occurred while connecting to the gRPC server")
-		return err
-	}
+	defer wg.Done()
 
 	app := fiber.New()
 	api := app.Group("/api")
 
 	v1 := api.Group("/v1")
 
-	// Group the routes
-	userRoutes := v1.Group("/users")
-	auth := v1.Group("/auth")
-	chatRoutes := v1.Group("/chat")
-	session := v1.Group("/session")
+	routes.Init(v1)
 
-	// User Routes
-	userClient := proto.NewUserGRPCServiceClient(user)
-	roomClient := proto.NewRoomGRPCServiceClient(room)
-	userHandler := handlers.NewUserHandler(userClient, roomClient)
-	err = userHandler.RegisterUserRoutes(userRoutes)
+	
+	err := app.Listen(fmt.Sprintf(":%s", a.HttpAddr))
 	if err != nil {
-		fmt.Println("Error occured while registering the user routes")
-		return err
-	}
-	fmt.Println("User routes registered successfully")
-
-	//Chat Routes
-	chatClient := proto.NewChatServiceClient(chat)
-	chatHandler := handlers.NewChatHandler(chatClient)
-	err = chatHandler.RegisterChatRoutes(chatRoutes)
-	if err != nil {
-		fmt.Println("Error occured while registering the chat routes")
-		return err
-	}
-	fmt.Println("Chat routes registered successfully")
-
-	handlers.NewAuthHandler(&userClient).RegisterAuthRoutes(auth)
-	handlers.RegisterSessionRoutes(session)
-	err = app.Listen(fmt.Sprintf(":%s", a.httpAddr))
-	if err != nil {
-		log.Fatalf("Error occurred while listening to port %v :  %v", a.httpAddr, err)
+		l.Panic().Err(err).Msg("Error starting API server")	
 	}
 
-	return nil
 }
