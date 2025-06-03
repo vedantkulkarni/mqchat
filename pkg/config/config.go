@@ -12,6 +12,8 @@ type Config struct {
 	RoomServicePort string
 	ChatServicePort string
 	MQTTServicePort string
+	AuthServiceHost string
+	AuthServicePort string
 }
 
 var config Config
@@ -27,6 +29,8 @@ func Get() *Config {
 		config.RoomServicePort = util.GetEnvVarInt("ROOMS_SERVICE_GRPC_PORT", 8004)
 		config.ChatServicePort = util.GetEnvVarInt("CHAT_SERVICE_GRPC_PORT", 8002)
 		config.MQTTServicePort = util.GetEnvVarInt("MQTT_PORT", 8001)
+		config.AuthServiceHost = util.GetEnvVar("AUTH_SERVICE_GRPC_HOST", "localhost") // Default to localhost for local non-Docker dev
+		config.AuthServicePort = util.GetEnvVarInt("AUTH_SERVICE_GRPC_PORT", 8005)    // Port 8005
 
 	})
 

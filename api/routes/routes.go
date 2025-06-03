@@ -25,8 +25,11 @@ func Init(baseRouter fiber.Router) {
 	chatHandler := handlers.NewChatHandler(grpcUtils.GetChatClientConn(config.ChatServicePort))
 	chatHandler.RegisterChatRoutes(chatRoutes)
 
-	userService := grpcUtils.GetUserClientConn(config.UserServicePort)
-	handlers.NewAuthHandler(&userService).RegisterAuthRoutes(auth)
+	// Auth Routes
+	// Use config.AuthServicePort which defaults to 8005 if env var is not set
+	authGRPCClient := grpcUtils.GetAuthClientConn(config.AuthServicePort)
+	authHandler := handlers.NewAuthHandler(authGRPCClient)
+	authHandler.RegisterAuthRoutes(auth)
 }
 
 func RegisterUserRoutes(user fiber.Router, h *handlers.UserHandler) {
