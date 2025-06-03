@@ -63,7 +63,21 @@ services:
         condition: service_healthy
     environment:
       DEBUG: "True"
-      
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth/Dockerfile
+    container_name: auth-service
+    restart: unless-stopped
+    ports:
+      - "${AUTH_SERVICE_GRPC_PORT:-8005}:${AUTH_SERVICE_GRPC_PORT:-8005}" # Host:Container mapping for new port
+    depends_on:
+      db: # Assuming indirect dependency via user-service or direct if future features need it
+        condition: service_healthy
+      user_service:
+        condition: service_started # wait for user-service to start
+
   server:
     build: 
       context: .
@@ -76,6 +90,8 @@ services:
         condition: service_healthy
       chat_service:
         condition: service_healthy
+      auth-service: # API server depends on the new auth service
+        condition: service_started
   
     environment:
       DEBUG: "True"

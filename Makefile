@@ -1,4 +1,4 @@
-gen : genUser genChat genRoom
+gen : genUser genChat genRoom genAuth
 
 genUser: ./proto/user.proto
 	protoc --go_out=./gen/ \
@@ -20,5 +20,12 @@ genRoom: ./proto/room.proto
 	--go-grpc_out=./gen/  \
 	--go-grpc_opt=paths=source_relative \
 	./proto/room.proto
+
+genAuth: ./proto/auth.proto
+	protoc --go_out=./gen/ \
+	--go_opt=paths=source_relative \
+	--go-grpc_out=./gen/  \
+	--go-grpc_opt=paths=source_relative \
+	./proto/auth.proto
 run:
 	go run ./cmd/server/main.go

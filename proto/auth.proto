@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/vedantkulkarni/mqchat/gen/proto";
+
+// Request message for user login
+message AuthLoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+// Response message for user login
+message AuthLoginResponse {
+  string token = 1;
+  string error = 2; // Can be empty if login is successful
+}
+
+// gRPC service for authentication
+service AuthGRPCService {
+  rpc Login(AuthLoginRequest) returns (AuthLoginResponse);
+}
